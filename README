@@ -1,0 +1,17 @@
+# Viper Lang
+
+## Building the toolchain
+Building the toolchain from source requires CMake.
+
+We recommend using the utility script for building/running any targets.
+```bash
+./go build --<debug | release> toolchain
+```
+This will build the toolchain in either release mode or with debug symbols.
+
+### Running a built toolchain
+Similarly to building, you can do:
+```bash
+./go run --<debug | release> toolchain
+```
+This will run the corresponding target

@@ -1,8 +1,22 @@
 #include <iostream>
+#include <common/command_line.h>
+#include <memory>
 
-int main()
+namespace common = viper::common;
+
+auto main() -> int
 {
-    std::cout << "Welcome to Viper\n";
+    common::ArgumentParser parser {};
+    auto& lex_parser = parser.addSubparser("lex");
+    lex_parser.registerArg(
+        std::make_shared<common::PositionalArgument>(
+            "file"
+            , "Name of the file to lex"
+            , [](const common::PositionalArgument& arg) {
+                std::cout << arg.getValue();
+            }
+        )
+    );
 
     return 0;
 }

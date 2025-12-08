@@ -1,0 +1,5 @@
+ClangTidy:
+  Add: [modernize-use-nullptr, cppcoreguidelines-*]
+  Remove: []
+  CheckOptions:
+    modernize-use-nullptr.NullMacros: NULL,nullptr_t

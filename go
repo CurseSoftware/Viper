@@ -9,8 +9,10 @@ valid_build_targets = [
 
 
 def handle_build(args):
+    print(args)
     mode = ""
     mode_flag = "-DCMAKE_BUILD_TYPE="
+    toolchain = ""
 
     if args.debug:
         mode = "debug"
@@ -21,9 +23,12 @@ def handle_build(args):
     else:
         raise ValueError("Invalid build mode")
 
+    if args.use_apple_default_toolchain:
+        toolchain = "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/macos-default-cmake.cmake"
+
     print(f"Performing {mode} build")
 
-    subprocess.run(["cmake", "-B", f"build_{mode}", "."])
+    subprocess.run(["cmake", "-B", f"build_{mode}", toolchain, "."])
     subprocess.run(["cmake", "--build", f"build_{mode}"])
 
 

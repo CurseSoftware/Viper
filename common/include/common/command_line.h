@@ -145,7 +145,6 @@ namespace viper::common::cli
                     throw std::runtime_error("Argument " + _name + " has already been handled.");
                 }
 
-                std::cout << "Received value: " + input_text + " for argument " + _name + '\n';
                 
                 try {
                     _value = handleImpl(input_text);
@@ -153,6 +152,14 @@ namespace viper::common::cli
                 } catch (std::runtime_error& err)
                 {
                     throw err;
+                }
+                
+                if (_value)
+                {
+                    std::cout << "Parsed value: " << _value.value() << " for argument " << _name + '\n';
+                } else
+                {
+                    std::cout << "Failed to parse value for argument: " << _name << '\n';
                 }
             }
 
@@ -162,7 +169,7 @@ namespace viper::common::cli
                 if constexpr (std::is_integral_v<T>)
                 {
                     T out {};
-                    auto result = std::from_chars(str.data(), str.data() + str.size(), &out);
+                    auto result = std::from_chars(str.data(), str.data() + str.size(), out);
                     if (result.ec != std::errc{})
                     {
                         throw std::runtime_error("Failed to parse integral value from input: {" + str + "} for argument: [" + _name + "]");

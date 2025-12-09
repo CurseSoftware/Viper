@@ -11,6 +11,8 @@ auto main(int argc, char** argv) -> int
     auto& lex_command = parser.addCommand("lex", "description");
     lex_command.addRequired<std::string>("--file", "-f", "The input file to tokenize");
     lex_command.addRequired<std::string>("--output", "-o", "The output of the tokenized file");
+    lex_command.addRequired<int>("--integral", "-i", "Test integral parsing");
+    lex_command.addRequired<float>("--floating", "-x", "Test floating point parsing");
 
     std::cout << parser.getUsageString() << '\n';
 

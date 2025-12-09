@@ -23,7 +23,6 @@ target_link_libraries("${PROJECT_NAME}" PUBLIC common)
 target_link_libraries("${PROJECT_NAME}" PRIVATE driver)
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
-    # "${PROJECT_SOURCE_DIR}/driver/include"
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/driver/include>
 )

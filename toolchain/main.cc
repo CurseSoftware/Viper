@@ -1,22 +1,19 @@
-#include <iostream>
 #include <common/command_line.h>
-#include <memory>
 
-namespace common = viper::common;
+#include <iostream>
 
-auto main() -> int
+namespace cli = viper::common::cli;
+
+auto main(int argc, char** argv) -> int
 {
-    common::ArgumentParser parser {};
-    auto& lex_parser = parser.addSubparser("lex");
-    lex_parser.registerArg(
-        std::make_shared<common::PositionalArgument>(
-            "file"
-            , "Name of the file to lex"
-            , [](const common::PositionalArgument& arg) {
-                std::cout << arg.getValue();
-            }
-        )
-    );
+    (void) argc;
+    (void) argv;
+
+    cli::ArgumentParser parser {};
+    auto& lex_command = parser.addCommand("lex", "description");
+    lex_command.addRequired<std::string>("--file", "-f", "The input file to tokenize");
+
+    std::cout << "usage: " << parser.getUsageString() << '\n';
 
     return 0;
 }

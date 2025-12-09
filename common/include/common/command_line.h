@@ -7,93 +7,36 @@
 #include <unordered_map>
 #include <functional>
 #include <vector>
+#include <queue>
 
-namespace viper::common
+namespace viper::common::cli
 {
     // Forward declarations
-    class ArgumentParser;
+    class Command;
 
-    class Argument
+    class ArgumentBase
     {
         public:
-            Argument() noexcept = default;
-            Argument(const Argument&) = default;
-            Argument(Argument&&) = default;
-            ~Argument() = default;
+            [[nodiscard]] explicit ArgumentBase() = default;
 
-            auto operator=(const Argument&) -> Argument& = default;
-            auto operator=(Argument&&) -> Argument& = default;
+            virtual ~ArgumentBase() = default;
 
-            // Stringify the arguments
-            virtual auto toString() const noexcept -> std::string = 0;
+            virtual auto handled() -> bool = 0;
+            virtual auto name() -> const std::string& = 0;
+            virtual auto alternative() -> const std::string& = 0;
+            virtual auto toString() -> std::string = 0;
 
-            // Get the name 
-            virtual auto name() const noexcept -> const std::string& = 0;
-
-            // Set the read value of the argument when parsing
-            virtual auto setValue(const std::string&) noexcept -> void = 0;
-
-            // Get the value read when parsing
-            virtual auto getValue() const noexcept -> const std::string& = 0;
+            auto match(std::string_view to_match) -> bool
+            {
+                return to_match == name() || to_match == alternative();
+            }
     };
 
-    class PositionalArgument : public Argument 
-    {
-        public:
-            using Handler = std::function<void(const PositionalArgument&)>;
-
-            PositionalArgument(
-                std::string_view name
-                , std::string_view description
-                , Handler&& handler
-            ) noexcept
-                : _name{ name }
-                , _description { description }
-                , _handler{ handler }
-            {}
-            
-            auto name() const noexcept -> const std::string& override { return _name; }
-
-            auto toString() const noexcept -> std::string override;
-        
-        private:
-            std::string _name {};
-            std::string _description {};
-            Handler _handler;
-    };
-
-    class ChoiceArgument : public Argument
-    {
-        public:
-            using Handler = std::function<void(const ChoiceArgument&)>;
-
-            [[nodiscard]] explicit ChoiceArgument(
-                std::string_view name
-                , std::string_view description
-                , const std::vector<std::shared_ptr<Argument>>& choices
-                , Handler&& handler
-            ) noexcept
-                : _name{ name }
-                , _description{ description }
-                , _choices{ choices }
-                , _handler{ handler }
-            {}
-
-            [[nodiscard]] auto name() const noexcept -> const std::string& override { return _name; }
-
-            [[nodiscard]] auto toString() const noexcept -> std::string override;
-
-        private:
-            std::string _name {};
-            std::string _description {};
-            std::vector<std::shared_ptr<Argument>> _choices {};
-            Handler _handler;
-    };
-    
     class ArgumentParser
     {
         public:
-            [[nodiscard]] ArgumentParser() = default;
+            // Constructors
+            [[nodiscard]] explicit ArgumentParser() = default;
             ArgumentParser(const ArgumentParser&) = default;
             ArgumentParser(ArgumentParser&&) = default;
             ~ArgumentParser() = default;
@@ -101,19 +44,174 @@ namespace viper::common
             auto operator=(const ArgumentParser&) -> ArgumentParser& = default;
             auto operator=(ArgumentParser&&) -> ArgumentParser& = default;
 
-            [[nodiscard]] auto addSubparser(std::string name) -> ArgumentParser&;
+            /////////////////////////////
+            //         Mutators        //
+            /////////////////////////////
+            
+            // Add a command for the parser to parse
+            [[nodiscard]] auto addCommand(const std::string& name, const std::string& description = "") -> Command&; 
 
-            [[nodiscard]] auto getArgumentString() const -> std::string;
+            // Parse the commands
+            auto parseCommands(int argc, char** argv) -> void;
 
-            auto registerArg(std::shared_ptr<Argument> arg) -> void;
+            [[nodiscard]] auto getUsageString() const noexcept -> std::string;
 
-            auto parse() -> void;
+        private:
+            std::unordered_map<std::string, Command> _commands {};
+    };
+
+    template <typename T>
+    class Argument : ArgumentBase
+    {
+        public:
+            // Factory functions
+            [[nodiscard]] static auto makeOptional(
+                const std::string& name
+                , const std::string& alt
+                , const std::string& description
+                , T default_value
+            ) noexcept -> ArgumentBase*
+            {
+                constexpr bool REQUIRED = false; 
+                
+                return new Argument<T>(
+                    name,
+                    alt,
+                    description,
+                    REQUIRED,
+                    default_value
+                );
+            }
+            
+            [[nodiscard]] static auto makeRequired(
+                const std::string& name
+                , const std::string& alt
+                , const std::string& description
+            ) noexcept -> ArgumentBase*
+            {
+                constexpr bool REQUIRED = true;
+                return new Argument<T>(
+                    name,
+                    alt,
+                    description,
+                    REQUIRED
+                );
+            }
+
+            [[nodiscard]] auto handled() noexcept -> bool override { return _handled; }
+            [[nodiscard]] auto name() noexcept -> const std::string& override { return _name; }
+            [[nodiscard]] auto alternative() noexcept -> const std::string& override { return _name; }
+            [[nodiscard]] auto toString() noexcept -> std::string override { return "[" + _name + "]"; }
+       
+        private:
+            [[nodiscard]] Argument(
+                std::string_view name
+                , std::string_view alt
+                , std::string_view description
+                , bool required
+            ) noexcept
+                : _name{ name }
+                , _alt{ alt }
+                , _description{ description }
+                , _required{ required }
+            {}
+            
+            [[nodiscard]] Argument(
+                std::string_view name
+                , std::string_view alt
+                , std::string_view description
+                , bool required
+                , T default_value
+            ) noexcept
+                : _name{ name }
+                , _alt{ alt }
+                , _description{ description }
+                , _required{ required }
+                , _value{ default_value }
+            {}
+
+            std::string _name {};
+            std::string _alt {};
+            std::string _description {};
+            bool _required { true };
+            bool _handled{ false };
+            std::optional<T> _value { std::nullopt };
+    };
+
+    template <typename T>
+    class ArgumentPromise
+    {
+        public:
+            [[nodiscard]] explicit ArgumentPromise(ArgumentBase* arg)
+                : _argument{ arg }
+            {}
+
+        private:
+            ArgumentBase* _argument;
+    };
+
+    class Command
+    {
+        public:
+            [[nodiscard]] explicit Command(std::string name, std::string description) noexcept
+                : _name{ name }
+                , _description{ description }
+            {}
+            Command(const Command&) = default;
+            Command(Command&&) = default;
+            ~Command() = default;
+            
+            auto operator=(const Command&) -> Command& = default;
+            auto operator=(Command&&) -> Command& = default;
+
+            /////////////////////////////
+            //         Mutators        //
+            /////////////////////////////
+            
+            // Add an optional argument
+            template <typename T>
+            auto addOptional(
+                const std::string& name
+                , const std::string& alt
+                , const std::string& description
+                , T default_value
+            ) -> ArgumentPromise<T>
+            {
+                auto command = Argument<T>::makeOptional(
+                    name,
+                    alt,
+                    description,
+                    default_value
+                );
+                _commands.push_back(command);
+            }
+            
+            template <typename T>
+            auto addRequired(
+                const std::string& name
+                , const std::string& alt
+                , const std::string& description
+            ) -> ArgumentPromise<T>
+            {
+                auto command = Argument<T>::makeRequired(
+                    name,
+                    alt,
+                    description
+                );
+                
+                _commands.push_back(command);
+                return ArgumentPromise<T>(command);
+            }
+
+            [[nodiscard]] auto getUsageString() const noexcept -> std::string;
+
         
         private:
-            std::unordered_map<std::string, ArgumentParser> _subparsers {};
-
-            std::unordered_map<std::string, std::shared_ptr<Argument>> _arguments {};
+            std::string _name {};
+            std::string _description {};
+            std::vector<ArgumentBase*> _commands {};
     };
-} // namespace viper::common
+
+} // namespace viper::common::cli
 
 #endif // VIPER_COMMON_COMMAND_LINE_H

@@ -23,9 +23,6 @@ def handle_build(args):
     else:
         raise ValueError("Invalid build mode")
 
-    if args.use_apple_default_toolchain:
-        toolchain = "-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/macos-default-cmake.cmake"
-
     print(f"Performing {mode} build")
 
     subprocess.run(["cmake", "-B", f"build_{mode}", toolchain, "."])

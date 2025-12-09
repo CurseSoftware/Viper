@@ -90,6 +90,8 @@ Checks:
   - '-readability-redundant-member-init'
   # Warns when callers use similar names as different parameters.
   - '-readability-suspicious-call-argument'
+  # Allows for multiple access specifiers in one class
+  - '-readability-redundant-access-specifiers'
 
 CheckOptions:
   # Don't warn on structs; done by ignoring when there are only public members.

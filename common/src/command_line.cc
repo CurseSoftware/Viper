@@ -1,10 +1,9 @@
 #include "command_line.h"
-#include <iostream>
 #include <stdexcept>
 
 namespace viper::common::cli
 {
-    auto ArgumentParser::addCommand(const std::string& name, const std::string& description) -> Command&
+    auto CommandLine::addCommand(const std::string& name, const std::string& description) -> Command&
     {
         auto cmd = Command(name, description);
         _commands.insert(std::make_pair(name, cmd));
@@ -13,7 +12,11 @@ namespace viper::common::cli
         return it->second;
     }
 
-    auto ArgumentParser::getUsageString() const noexcept -> std::string
+    auto CommandLine::runReceivedCommand() const noexcept -> void
+    {
+    }
+
+    auto CommandLine::getUsageString() const noexcept -> std::string
     {
         std::string usage { "usage: " };
         
@@ -27,8 +30,7 @@ namespace viper::common::cli
     }
 
     auto Command::getUsageString() const noexcept -> std::string
-    {
-        std::string usage {};
+    { std::string usage {};
 
         for (const auto& arg : _arguments)
         {
@@ -38,14 +40,13 @@ namespace viper::common::cli
         return usage;
     }
 
-    auto ArgumentParser::parseCommands(int argc, char** argv) -> void
+    auto CommandLine::parseCommands(int argc, char** argv) -> void
     {
         if (argc < 2 && !_commands.empty())
         {
             throw std::runtime_error("Invalid number of command line arguments");
         }
 
-        std::cout << "Parsing commands...\n";
         for (int i = 1; i < argc; i++)
         {
             _input_arguments.emplace(argv[i]);
@@ -71,14 +72,16 @@ namespace viper::common::cli
                 throw std::runtime_error("No argument match found for \"" + arguments.front() + "\"");
             }
 
-            std::cout << "Matched argument: " << arguments.front() << '\n';
-
             auto& matched = matched_opt.value();
             arguments.pop();
 
             matched->handle(arguments.front());
             arguments.pop();
         }
+
+        handleRemainingOptionalArgs();
+
+        _been_parsed = true;
     }
 
     auto Command::findMatch(std::string_view input_argument) -> std::optional<std::shared_ptr<ArgumentBase>>
@@ -88,6 +91,66 @@ namespace viper::common::cli
             if (argument->match(input_argument))
             {
                 return argument;
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    auto Command::handleRemainingOptionalArgs() -> void
+    {
+        for (auto& argument : _arguments)
+        {
+            if (argument->isOptional() && !argument->handled())
+            {
+                try
+                {
+                    argument->handleAbsentOptional();
+                } catch (std::runtime_error& err)
+                {
+                    throw err;
+                }
+            }
+        }
+    }
+
+    auto Command::formatArgumentName(const std::string& name) const noexcept -> std::optional<std::string>
+    {
+        std::string formatted {};
+        
+        if (name.empty())
+        {
+            return std::nullopt;
+        }
+
+        for (std::size_t i = 0; i < 2; i++)
+        {
+            if (name[i] != '-')
+            {
+                formatted.push_back('-');
+            }
+        }
+
+        formatted += name;
+
+        return formatted;
+    }
+
+    auto Command::formatAltName(const std::string& name) const noexcept -> std::optional<std::string>
+    {
+        std::string formatted { "-" };
+
+        if (name.empty())
+        {
+            return std::nullopt;
+        }
+
+        for (const auto character : name)
+        {
+            if (character != '-')
+            {
+                formatted.push_back(character);
+                return formatted;
             }
         }
 

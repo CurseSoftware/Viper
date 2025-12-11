@@ -2,14 +2,12 @@
 #define VIPER_COMMON_COMMAND_LINE_H
 
 #include <charconv>
-#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
 #include <type_traits>
-#include <typeinfo>
 #include <unordered_map>
 #include <functional>
 #include <vector>
@@ -20,6 +18,8 @@ namespace viper::common::cli
     // Forward declarations
     class Command;
 
+    using CommandReceivedCallback = std::function<void()>;
+
     class ArgumentBase
     {
         public:
@@ -28,10 +28,13 @@ namespace viper::common::cli
             virtual ~ArgumentBase() = default;
 
             virtual auto handle(const std::string&) -> void = 0;
-            virtual auto handled() const -> bool = 0;
-            virtual auto name() const -> const std::string& = 0;
-            virtual auto alternative() const -> const std::string& = 0;
-            virtual auto toString() const -> std::string = 0;
+            virtual auto handleAbsentOptional() -> void = 0;
+            virtual auto handled() const noexcept -> bool = 0;
+            virtual auto name() const noexcept -> const std::string& = 0;
+            virtual auto alternative() const noexcept -> const std::string& = 0;
+            virtual auto toString() const noexcept -> std::string = 0;
+            virtual auto isOptional() const noexcept -> bool = 0;
+            virtual auto isRequired() const noexcept -> bool = 0;
 
             auto match(std::string_view to_match) const noexcept -> bool
             {
@@ -39,28 +42,31 @@ namespace viper::common::cli
             }
     };
 
-    class ArgumentParser
+    class CommandLine
     {
         // Constructors
         public:
-            [[nodiscard]] explicit ArgumentParser() = default;
-            ArgumentParser(const ArgumentParser&) = default;
-            ArgumentParser(ArgumentParser&&) = default;
-            ~ArgumentParser() = default;
+            [[nodiscard]] explicit CommandLine() = default;
+            CommandLine(const CommandLine&) = default;
+            CommandLine(CommandLine&&) = default;
+            ~CommandLine() = default;
 
-            auto operator=(const ArgumentParser&) -> ArgumentParser& = default;
-            auto operator=(ArgumentParser&&) -> ArgumentParser& = default;
+            auto operator=(const CommandLine&) -> CommandLine& = default;
+            auto operator=(CommandLine&&) -> CommandLine& = default;
             
-        // Mutators
+        // Methods
         public:
             // Create a subcommand to be configured
-            [[nodiscard]] auto addCommand(const std::string& name, const std::string& description = "") -> Command&; 
-
-            // Parse the commands
-            auto parseCommands(int argc, char** argv) -> void;
+            [[nodiscard]] auto addCommand(const std::string& name,  const std::string& description = "") -> Command&; 
 
             // Get the usage string for all the commands
             [[nodiscard]] auto getUsageString() const noexcept -> std::string;
+            
+            // Parse the commands
+            auto parseCommands(int argc, char** argv) -> void;
+
+            // Run the command that was received from the command line
+            auto runReceivedCommand() const noexcept -> void;
 
         private:
             std::unordered_map<std::string, Command> _commands {};
@@ -121,7 +127,7 @@ namespace viper::common::cli
             [[nodiscard]] auto name() const noexcept -> const std::string& override { return _name; }
 
             // The alternative (usually shortened) name of this argument
-            [[nodiscard]] auto alternative() const noexcept -> const std::string& override { return _name; }
+            [[nodiscard]] auto alternative() const noexcept -> const std::string& override { return _alt; }
 
             // Get the stringified version of this argument
             [[nodiscard]] auto toString() const noexcept -> std::string override 
@@ -135,8 +141,35 @@ namespace viper::common::cli
                 return str;
             }
 
+            // Return `true` if this argument is optional
+            [[nodiscard]] auto isOptional() const noexcept -> bool override { return !_required; }
+
+            // Return `true` if this argument is required
+            [[nodiscard]] auto isRequired() const noexcept -> bool override { return _required; }
+
+            // Get the parsed value from the argument.
+            // This will throw if the argument is not
+            // considered handled, even if it is a default value.
+            //
+            // This is because that value can change depending on
+            // whatever was parsed.
+            [[nodiscard]] auto get() const -> T;
+
         // Setters & Mutators
         public:
+            // Used for setting `_handled` to `true` for optional arguments that were
+            // not present when parsing. This allows the values to be read from optional
+            // arguments after parsing when they were not present.
+            auto handleAbsentOptional() -> void override
+            {
+                if (_required)
+                {
+                    throw std::runtime_error("Cannot set handling for non-optional argument");
+                }
+
+                _handled = true;
+            }
+
             // Handle the given input text
             auto handle(const std::string& input_text) -> void override
             {
@@ -152,14 +185,6 @@ namespace viper::common::cli
                 } catch (std::runtime_error& err)
                 {
                     throw err;
-                }
-                
-                if (_value)
-                {
-                    std::cout << "Parsed value: " << _value.value() << " for argument " << _name + '\n';
-                } else
-                {
-                    std::cout << "Failed to parse value for argument: " << _name << '\n';
                 }
             }
 
@@ -253,6 +278,9 @@ namespace viper::common::cli
                 : _argument{ arg }
             {}
 
+            // Get the value from the promise
+            auto get() const -> T;
+
         private:
             // The argument that this is a promise for
             std::weak_ptr<ArgumentBase> _argument;
@@ -272,14 +300,25 @@ namespace viper::common::cli
             
             auto operator=(const Command&) -> Command& = default;
             auto operator=(Command&&) -> Command& = default;
+
+        // Getters
+        public:
+            // Get the name of this command
+            auto name() -> const std::string& { return _name; }
+
+            // Return whether or not the command has been parsed or not.
+            [[nodiscard]] auto hasBeenParsed() -> bool;
+
+            // Get the usage string for the command
+            [[nodiscard]] auto getUsageString() const noexcept -> std::string;
         
-        // Mutators
+        // Methods
         public:
             // Register an optional argument for this command.
             // This argument must supply a default value for 
             // the case when it is not present
             template <typename T>
-            auto addOptional(
+            [[nodiscard]] auto addOptional(
                 const std::string& name
                 , const std::string& alt
                 , const std::string& description
@@ -287,7 +326,7 @@ namespace viper::common::cli
             ) -> ArgumentPromise<T>
             {
                 auto argument = Argument<T>::makeOptional(
-                    name,
+                    formatArgumentName(name).value(),
                     alt,
                     description,
                     default_value
@@ -295,16 +334,36 @@ namespace viper::common::cli
                 _arguments.push_back(argument);
             }
             
-            // Register a required argument for this command.
+            // Register a required argument for this command
             template <typename T>
-            auto addRequired(
+            [[nodiscard]] auto addOptional(
+                const std::string& name
+                , const std::string& description
+                , T default_value
+            ) -> ArgumentPromise<T>
+            {
+                auto argument = Argument<T>::makeOptional(
+                    formatArgumentName(name).value(),
+                    formatAltName(name).value(),
+                    description,
+                    default_value
+                );
+                
+                _arguments.push_back(argument);
+                return ArgumentPromise<T>(argument);
+            }
+            
+            // Register a required argument for this command
+            // when there is a specified alternative form specified
+            template <typename T>
+            [[nodiscard]] auto addRequired(
                 const std::string& name
                 , const std::string& alt
                 , const std::string& description
             ) -> ArgumentPromise<T>
             {
                 auto argument = Argument<T>::makeRequired(
-                    name,
+                    formatArgumentName(name).value(),
                     alt,
                     description
                 );
@@ -312,9 +371,23 @@ namespace viper::common::cli
                 _arguments.push_back(argument);
                 return ArgumentPromise<T>(argument);
             }
-
-            // Get the usage string for the command
-            [[nodiscard]] auto getUsageString() const noexcept -> std::string;
+            
+            // Register a required argument for this command
+            template <typename T>
+            [[nodiscard]] auto addRequired(
+                const std::string& name
+                , const std::string& description
+            ) -> ArgumentPromise<T>
+            {
+                auto argument = Argument<T>::makeRequired(
+                    formatArgumentName(name).value(),
+                    formatAltName(name).value(),
+                    description
+                );
+                
+                _arguments.push_back(argument);
+                return ArgumentPromise<T>(argument);
+            }
 
             // Parse the arguments for this command.
             // This does not include the name of the command itself
@@ -325,6 +398,15 @@ namespace viper::common::cli
             // Find the match for the input argument in the registered arguments.
             // If there is no match, then it returns `std::nullopt`
             [[nodiscard]] auto findMatch(std::string_view) -> std::optional<std::shared_ptr<ArgumentBase>>;
+
+            // This sets all optional arguments that were not
+            // present to `handled` so that their values can be 
+            // properly read from.
+            auto handleRemainingOptionalArgs() -> void;
+
+            [[nodiscard]] auto formatArgumentName(const std::string&) const noexcept -> std::optional<std::string>;
+            
+            [[nodiscard]] auto formatAltName(const std::string&) const noexcept -> std::optional<std::string>;
         
         private:
             // The name of the command
@@ -335,8 +417,9 @@ namespace viper::common::cli
             
             // The list of arguments attached to this command
             std::vector<std::shared_ptr<ArgumentBase>> _arguments {};
-    };
 
+            bool _been_parsed { false };
+    };
 } // namespace viper::common::cli
 
 #endif // VIPER_COMMON_COMMAND_LINE_H

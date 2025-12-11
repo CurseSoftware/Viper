@@ -30,4 +30,6 @@ target_include_directories("${PROJECT_NAME}" PUBLIC
     # Include any external paths
 )
 
+target_link_libraries("${PROJECT_NAME}" PUBLIC common)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")

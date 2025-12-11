@@ -5,3 +5,4 @@ build_release
 
 # This should be a symlink anyway
 compile_commands.json
+viper

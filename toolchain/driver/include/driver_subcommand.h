@@ -28,7 +28,7 @@ namespace viper::toolchain::driver
             virtual auto name() const noexcept -> const std::string& = 0;
 
             // Build the command
-            virtual auto build(cli::Command&) noexcept -> void;
+            virtual auto build(cli::Command&) noexcept -> void = 0;
     };
 } // namespace viper::toolchain::driver
 

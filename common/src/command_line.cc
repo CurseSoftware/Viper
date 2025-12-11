@@ -40,7 +40,7 @@ namespace viper::common::cli
         return usage;
     }
 
-    auto CommandLine::parseCommands(int argc, char** argv) -> void
+    auto CommandLine::parseCommands(int argc, char** argv) -> CommandParseResult
     {
         if (argc < 2 && !_commands.empty())
         {
@@ -52,6 +52,7 @@ namespace viper::common::cli
             _input_arguments.emplace(argv[i]);
         }
 
+        std::string command_name = _input_arguments.front();
         auto it = _commands.find(_input_arguments.front());
         if (it == _commands.end())
         {
@@ -60,6 +61,8 @@ namespace viper::common::cli
 
         _input_arguments.pop();
         it->second.parseCommand(_input_arguments);
+        
+        return { command_name };
     }
 
     auto Command::parseCommand(std::queue<std::string>& arguments) -> void

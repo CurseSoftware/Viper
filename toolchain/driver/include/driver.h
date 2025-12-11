@@ -38,7 +38,6 @@ namespace viper::toolchain::driver
 
             // The held commands for the driver
             std::unordered_map<std::string, std::unique_ptr<DriverSubcommand>> _commands;
-            
     };
 
 } // namespace viper::toolchain::driver

@@ -21,6 +21,7 @@ namespace viper::toolchain::driver
             [[nodiscard]] explicit LexCommand() = default;
             LexCommand(const LexCommand&) = default;
             LexCommand(LexCommand&&) = default;
+            ~LexCommand() override = default;
 
             auto operator=(const LexCommand&) -> LexCommand& = default;
             auto operator=(LexCommand&&) -> LexCommand& = default;
@@ -39,10 +40,17 @@ namespace viper::toolchain::driver
             auto name() const noexcept -> const std::string& override { return _name; }
         
         private:
-            // Promises of values parsed from the command lines
+            // To be able to get the command name
             std::string _name { CommandName };
-            std::optional<cli::ArgumentPromise<std::string>> _input_arg  { std::nullopt };
-            std::optional<cli::ArgumentPromise<std::string>> _output_arg { std::nullopt };
+            
+            // Promises of values parsed from the command lines
+            
+            // Arg for input to tokenize. This should always point to a file
+            cli::ArgumentPromise<std::string> _input_arg  {};
+
+            // Arg for output to tokenize. This should either be a file or nothing.
+            // If nothing, then the output goes to stdout
+            cli::ArgumentPromise<std::string> _output_arg {};
 
     };
 } // namespace viper::toolchain::driver

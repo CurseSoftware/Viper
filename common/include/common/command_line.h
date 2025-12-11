@@ -63,7 +63,7 @@ namespace viper::common::cli
             [[nodiscard]] auto getUsageString() const noexcept -> std::string;
             
             // Parse the commands
-            auto parseCommands(int argc, char** argv) -> void;
+            [[nodiscard]] auto parseCommands(int argc, char** argv) -> struct CommandParseResult;
 
             // Run the command that was received from the command line
             auto runReceivedCommand() const noexcept -> void;
@@ -153,7 +153,15 @@ namespace viper::common::cli
             //
             // This is because that value can change depending on
             // whatever was parsed.
-            [[nodiscard]] auto get() const -> T;
+            [[nodiscard]] auto get() const -> std::optional<T>
+            {
+                if (!handled())
+                {
+                    return std::nullopt;
+                }
+
+                return _value;
+            }
 
         // Setters & Mutators
         public:
@@ -274,16 +282,21 @@ namespace viper::common::cli
     class ArgumentPromise
     {
         public:
-            [[nodiscard]] explicit ArgumentPromise(std::shared_ptr<ArgumentBase> arg)
+            [[nodiscard]] explicit ArgumentPromise(std::shared_ptr<Argument<T>> arg)
                 : _argument{ arg }
             {}
+            
+            [[nodiscard]] explicit ArgumentPromise() = default;
 
             // Get the value from the promise
-            auto get() const -> T;
+            [[nodiscard]] auto get() const -> std::optional<T>
+            {
+                return _argument.lock()->get();
+            }
 
         private:
             // The argument that this is a promise for
-            std::weak_ptr<ArgumentBase> _argument;
+            std::weak_ptr<Argument<T>> _argument;
     };
 
     class Command
@@ -419,6 +432,11 @@ namespace viper::common::cli
             std::vector<std::shared_ptr<ArgumentBase>> _arguments {};
 
             bool _been_parsed { false };
+    };
+
+    struct CommandParseResult
+    {
+        std::string parsed_command_name {};
     };
 } // namespace viper::common::cli
 

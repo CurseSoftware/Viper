@@ -54,8 +54,5 @@ namespace viper::toolchain::driver
             std::cout << "Error parsing command line: {" << err.what() << "}\n";
             std::cout << _command_line.getUsageString() << "\n";
         }
-
-        auto d = diagnostics::make_diagnostic<diagnostics::InvalidTokenDiagnostic>(1, std::string("Test"));
-        d.print();
     }
 } // namespace viper::toolchain::driver

@@ -12,7 +12,7 @@ file(GLOB_RECURSE BASE_SOURCES
 )
 
 file(GLOB_RECURSE BASE_HEADERS 
-    "${PROJECT_SOURCE_DIR}/include/*.h"
+    "${PROJECT_SOURCE_DIR}/include/base/*.h"
 )
 
 set(BASE_INCLUDE "${PROJECT_SOURCE_DIR}/include")
@@ -30,5 +30,7 @@ target_include_directories("${PROJECT_NAME}" PUBLIC
     # "${LEX_INCLUDE}"
     # Include any external paths
 )
+
+target_link_libraries("${PROJECT_NAME}" PUBLIC common)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")

@@ -14,13 +14,19 @@ file(GLOB TOOLCHAIN_SOURCES
 )
 
 add_subdirectory(driver)
+add_subdirectory(source)
+add_subdirectory(base)
+add_subdirectory(diagnostics)
 
 message("Sources: ${TOOLCHAIN_SOURCES}")
 
 add_executable("${PROJECT_NAME}" "${TOOLCHAIN_SOURCES}")
 
 target_link_libraries("${PROJECT_NAME}" PUBLIC common)
+target_link_libraries("${PROJECT_NAME}" PRIVATE source)
 target_link_libraries("${PROJECT_NAME}" PRIVATE driver)
+target_link_libraries("${PROJECT_NAME}" PRIVATE base)
+target_link_libraries("${PROJECT_NAME}" PRIVATE diagnostics)
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     $<INSTALL_INTERFACE:include>

@@ -1,7 +1,7 @@
 #include "command_line.h"
 #include <stdexcept>
 
-namespace viper::common::cli
+namespace viper::cli
 {
     auto CommandLine::addCommand(const std::string& name, const std::string& description) -> Command&
     {
@@ -160,4 +160,4 @@ namespace viper::common::cli
         return std::nullopt;
     }
 
-} // namespace viper::common::cli
+} // namespace viper::cli

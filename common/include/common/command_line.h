@@ -13,7 +13,7 @@
 #include <vector>
 #include <queue>
 
-namespace viper::common::cli
+namespace viper::cli
 {
     // Forward declarations
     class Command;

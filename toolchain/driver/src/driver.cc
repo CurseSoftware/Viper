@@ -1,6 +1,8 @@
 #include "driver.h"
 #include "driver_subcommand.h"
 #include "lex_subcommand.h"
+#include "diagnostics/diagnostic.h"
+#include "diagnostics/kinds.h"
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -52,5 +54,8 @@ namespace viper::toolchain::driver
             std::cout << "Error parsing command line: {" << err.what() << "}\n";
             std::cout << _command_line.getUsageString() << "\n";
         }
+
+        auto d = diagnostics::make_diagnostic<diagnostics::InvalidTokenDiagnostic>(1, std::string("Test"));
+        d.print();
     }
 } // namespace viper::toolchain::driver

@@ -31,5 +31,8 @@ target_include_directories("${PROJECT_NAME}" PUBLIC
 )
 
 target_link_libraries("${PROJECT_NAME}" PUBLIC common)
+target_link_libraries("${PROJECT_NAME}" PUBLIC source)
+target_link_libraries("${PROJECT_NAME}" PUBLIC base)
+target_link_libraries("${PROJECT_NAME}" PUBLIC diagnostics)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")

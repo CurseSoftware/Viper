@@ -21,6 +21,8 @@ namespace viper::toolchain::diagnostics
 // ----------------------------- //
 //       DRIVER DIAGNOSTICS      //
 // ----------------------------- //
+VIPER_DIAGNOSTIC_KIND(InvalidCommand, "Invalid command: {}", std::string)
+VIPER_DIAGNOSTIC_KIND(InvalidCommandArgument, "Invalid argument for command '{}': {}", std::string, std::string)
 VIPER_DIAGNOSTIC_KIND(FileNotFound, "File not found: {}", std::string)
 
 // --------------------------- //

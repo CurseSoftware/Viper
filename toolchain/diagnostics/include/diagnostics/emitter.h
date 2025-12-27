@@ -2,6 +2,7 @@
 #define VIPER_TOOLCHAIN_DIAGNOSTICS_EMITTER_H
 
 #include "consumer.h"
+#include "diagnostic.h"
 #include <memory>
 
 namespace viper::toolchain::diagnostics
@@ -19,14 +20,49 @@ namespace viper::toolchain::diagnostics
                     Builder(const Builder&) = delete;
                     auto operator=(const Builder&) -> Builder& = delete;
 
+                    template <typename ...Args>
+                    auto emit() & -> void
+                    {
+                        if (!_emitter)
+                        {
+                            return;
+                        }
+
+                        _emitter->_consumer.lock()->handleDiagnostic(std::move(_diagnostic));
+                    }
+
+                    template <typename ...Args>
+                    auto addMessage(const DiagnosticBase<Args...>& diagnostic_base, Args ...args) -> void
+                    {
+                        if (!_emitter)
+                        {
+                            return;
+                        }
+
+                        _diagnostic.messages().emplace_back({.level = Level::Note, .message = diagnostic_base.formatted() });
+                    }
+
+                protected:
+                    template <typename ...Args>
+                    explicit Builder(Emitter* emitter, const DiagnosticBase<Args...> diagnostic_base, Args ...args)
+                        : _emitter{ emitter }
+                    {
+                        addMessage(diagnostic_base, args...);
+                    }
+
                 private:
                     friend class Emitter<LocationType>;
                     explicit Builder() = default;
+                    Emitter* _emitter { nullptr };
+                    Diagnostic _diagnostic;
             };
 
         public:
             template <typename... Args>
-            auto build() noexcept -> Builder&;
+            auto build(LocationType location_type, const DiagnosticBase<Args...> diagnostic_base) noexcept -> Builder&
+            {
+                return Builder(this);
+            }
 
         public:
             [[nodiscard]] explicit Emitter(std::shared_ptr<Consumer> consumer)

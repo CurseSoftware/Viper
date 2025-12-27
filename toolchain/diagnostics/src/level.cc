@@ -8,11 +8,11 @@ namespace viper::toolchain::diagnostics
         switch (level)
         {
             case Level::Note:
-                return "note";
+                return "Note";
             case Level::Warning:
-                return "warning";
+                return "Warning";
             case Level::Error:
-                return "error";
+                return "Error";
         }
     }
 } // namespace viper::toolchain::diagnostics

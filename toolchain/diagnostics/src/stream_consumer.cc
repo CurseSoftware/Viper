@@ -9,7 +9,7 @@ namespace viper::toolchain::diagnostics
         for (const auto& message : diagnostic.messages())
         {
             _stream << format::format("{}: ", levelToString(diagnostic.level()));
-            _stream << message;
+            _stream << message.message;
 
             _stream << '\n';
         }

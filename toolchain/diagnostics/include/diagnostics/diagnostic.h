@@ -17,24 +17,30 @@ namespace viper::toolchain::diagnostics
         Error
     };
 
+    struct Message
+    {
+        Level level {};
+        std::string message {};
+    };
+
     // Get the string version of the `Level` enum
     auto levelToString(Level level) noexcept -> std::string;
 
     class [[nodiscard]] Diagnostic
     {
         public:
-            explicit Diagnostic(Level level, const std::vector<std::string> messages) noexcept
+            explicit Diagnostic(Level level, const std::vector<Message> messages) noexcept
                 : _level{ level }
                 , _messages{ messages }
             {}
 
             auto level() const noexcept -> Level { return _level; }
 
-            auto messages() const noexcept -> const std::vector<std::string>& { return _messages; }
+            auto messages() const noexcept -> const std::vector<Message>& { return _messages; }
         
         private:
             Level _level {};
-            std::vector<std::string> _messages {};
+            std::vector<Message> _messages {};
     };
 
     // Concept to define an interface for
@@ -50,11 +56,15 @@ namespace viper::toolchain::diagnostics
     class DiagnosticBase
     {
         public:
-            explicit constexpr DiagnosticBase(Args ...args)
-                : _formatted{ format::format(T::Fmt, std::forward<Args>(args)...) }
+            explicit constexpr DiagnosticBase(Level level, Args ...args)
+                : _level{ level }
+                , _formatted{ format::format(T::Fmt, std::forward<Args>(args)...) }
             {}
 
             auto print() -> void { std::cout << _formatted << '\n'; }
+
+            // Getter for the formatted diagnostic message
+            auto formatted() const noexcept -> const std::string& { return _formatted; }
 
         protected:
             constexpr void required_diagnostic_interface() const requires DiagnosticT<T>
@@ -68,9 +78,9 @@ namespace viper::toolchain::diagnostics
     };
 
     template<DiagnosticT D, typename ...Args>
-    auto make_diagnostic(Args&&... args) noexcept -> DiagnosticBase<D, Args...>
+    auto make_diagnostic(Level level, Args&&... args) noexcept -> DiagnosticBase<D, Args...>
     {
-        return DiagnosticBase<D, Args...>(args...);
+        return DiagnosticBase<D, Args...>(level, args...);
     }
 } // namespace viper::toolchain::diagnostics
 

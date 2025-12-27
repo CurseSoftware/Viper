@@ -1,6 +1,7 @@
 #include "common/format.h"
 #include "consumer.h"
 #include "diagnostic.h"
+#include <iostream>
 
 namespace viper::toolchain::diagnostics
 {

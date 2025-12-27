@@ -32,22 +32,37 @@ namespace viper::toolchain::diagnostics
                     }
 
                     template <typename ...Args>
-                    auto addMessage(const DiagnosticBase<Args...>& diagnostic_base, Args ...args) -> void
+                    auto emit() && -> void
+                    {
+                        static_assert(false, "Use emitter.build().note().emit() instead of emitter.build().emit()");
+                    }
+
+                    template <typename ...Args>
+                    auto addMessage(const DiagnosticBase<Args...>& diagnostic_base) -> void
                     {
                         if (!_emitter)
                         {
                             return;
                         }
 
-                        _diagnostic.messages().emplace_back({.level = Level::Note, .message = diagnostic_base.formatted() });
+                        // _diagnostic.messages().emplace_back({.level = Level::Note, .message = diagnostic_base.formatted() });
+                        _diagnostic.emplaceMessage(Level::Note, diagnostic_base.formatted());
+                    }
+
+                    template <typename ...Args>
+                    auto note(const DiagnosticBase<Args...>& diagnostic_base) -> Builder&
+                    {
+                        addMessage(diagnostic_base);
+                        return *this;
                     }
 
                 protected:
                     template <typename ...Args>
-                    explicit Builder(Emitter* emitter, const DiagnosticBase<Args...> diagnostic_base, Args ...args)
+                    explicit Builder(Emitter* emitter, const DiagnosticBase<Args...> diagnostic_base)
                         : _emitter{ emitter }
+                        , _diagnostic(diagnostic_base.level())
                     {
-                        addMessage(diagnostic_base, args...);
+                        addMessage(diagnostic_base);
                     }
 
                 private:
@@ -59,10 +74,18 @@ namespace viper::toolchain::diagnostics
 
         public:
             template <typename... Args>
-            auto build(LocationType location_type, const DiagnosticBase<Args...> diagnostic_base) noexcept -> Builder&
+            auto build(const DiagnosticBase<Args...> diagnostic_base) noexcept -> Builder
             {
-                return Builder(this);
+                return Builder(this, diagnostic_base);
             }
+
+            template <typename... Args>
+            auto emit(const DiagnosticBase<Args...> diagnostic_base) noexcept -> void
+            {
+                auto builder = Builder(this, diagnostic_base);
+                builder.emit();
+            }
+
 
         public:
             [[nodiscard]] explicit Emitter(std::shared_ptr<Consumer> consumer)

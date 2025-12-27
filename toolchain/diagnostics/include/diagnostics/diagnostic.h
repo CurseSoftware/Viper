@@ -29,7 +29,7 @@ namespace viper::toolchain::diagnostics
     class [[nodiscard]] Diagnostic
     {
         public:
-            explicit Diagnostic(Level level, const std::vector<Message> messages) noexcept
+            explicit Diagnostic(Level level, const std::vector<Message> messages = {}) noexcept
                 : _level{ level }
                 , _messages{ messages }
             {}
@@ -37,6 +37,12 @@ namespace viper::toolchain::diagnostics
             auto level() const noexcept -> Level { return _level; }
 
             auto messages() const noexcept -> const std::vector<Message>& { return _messages; }
+
+            template <typename ...Args>
+            auto emplaceMessage(Args&&... args) -> void
+            {
+                _messages.emplace_back(args...);
+            }
         
         private:
             Level _level {};
@@ -58,13 +64,16 @@ namespace viper::toolchain::diagnostics
         public:
             explicit constexpr DiagnosticBase(Level level, Args ...args)
                 : _level{ level }
-                , _formatted{ format::format(T::Fmt, std::forward<Args>(args)...) }
+                , _formatted{ format::format(T::Fmt, std::forward<Args...>(args)...) }
             {}
 
             auto print() -> void { std::cout << _formatted << '\n'; }
 
             // Getter for the formatted diagnostic message
             auto formatted() const noexcept -> const std::string& { return _formatted; }
+
+            // Getter for the level of the diagnostic
+            auto level() const noexcept -> Level { return _level; }
 
         protected:
             constexpr void required_diagnostic_interface() const requires DiagnosticT<T>

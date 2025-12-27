@@ -1,9 +1,11 @@
 #ifndef VIPER_TOOLCHAIN_DRIVER_DRIVER_H
 #define VIPER_TOOLCHAIN_DRIVER_DRIVER_H
 
+#include "diagnostics/emitter.h"
 #include "driver_subcommand.h"
 #include <common/command_line.h>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 namespace viper::toolchain::driver
@@ -12,7 +14,10 @@ namespace viper::toolchain::driver
     {
         // Constructors
         public:
-            [[nodiscard]] explicit Driver() noexcept;
+            // Constructor for Driver can *technically* throw std::bad_alloc,
+            // but as this class should generally only be instantiated once
+            // and at the beginning of execution, this should basically never happen
+            [[nodiscard]] explicit Driver();
             Driver(const Driver&) = default;
             Driver(Driver&&) = default;
             ~Driver() = default;
@@ -32,12 +37,19 @@ namespace viper::toolchain::driver
             // Build the subcommands from the command line utility
             auto buildSubcommands() noexcept -> void;
 
+            // Diagnose an invalid command from the command line
+            auto diagnoseInvalidCommand(const std::string&) noexcept -> void;
+
         // Member fields
         private:
             cli::CommandLine _command_line {};
 
             // The held commands for the driver
             std::unordered_map<std::string, std::unique_ptr<DriverSubcommand>> _commands;
+
+            std::shared_ptr<diagnostics::Consumer> _consumer;
+            
+            diagnostics::Emitter<const char*> _emitter;
     };
 
 } // namespace viper::toolchain::driver

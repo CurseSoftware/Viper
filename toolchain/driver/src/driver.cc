@@ -1,4 +1,6 @@
 #include "driver.h"
+#include "common/command_line.h"
+#include "diagnostics/consumer.h"
 #include "driver_subcommand.h"
 #include "lex_subcommand.h"
 #include "diagnostics/diagnostic.h"
@@ -12,7 +14,9 @@
 namespace viper::toolchain::driver
 {
     // Constructor
-    Driver::Driver() noexcept
+    Driver::Driver()
+        : _consumer{ std::make_shared<diagnostics::StreamConsumer>(std::cout) }
+        , _emitter{ _consumer }
     {
         addSubcommands();
         buildSubcommands();
@@ -45,14 +49,20 @@ namespace viper::toolchain::driver
             auto it = _commands.find(parsed_command.parsed_command_name);
             if(it == _commands.end())
             {
-                throw std::runtime_error("Invalid command name: " + parsed_command.parsed_command_name);
+                throw std::runtime_error(parsed_command.parsed_command_name);
             }
 
             it->second->run();
         } catch (std::runtime_error& err)
         {
-            std::cout << "Error parsing command line: {" << err.what() << "}\n";
+            diagnoseInvalidCommand(err.what());
             std::cout << _command_line.getUsageString() << "\n";
         }
+    }
+
+    auto Driver::diagnoseInvalidCommand(const std::string& command) noexcept -> void
+    {
+        auto diag = diagnostics::make_diagnostic<diagnostics::InvalidCommandDiagnostic>(diagnostics::Level::Error, std::string(command));
+        _emitter.emit(diag);
     }
 } // namespace viper::toolchain::driver

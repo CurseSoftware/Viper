@@ -1,3 +1,4 @@
+#include "lex/lex.h"
 #include "lex_subcommand.h"
 #include "common/filesystem.h"
 #include "common/memory_buffer.h"
@@ -43,6 +44,9 @@ namespace viper::toolchain::driver
         }
 
         source_buffer->printAsAscii();
+        std::cout << '\n';
+
+        lex::lex();
     }
 
     auto LexCommand::createSourceMemoryBuffer() noexcept -> std::unique_ptr<memory::MemoryBuffer>

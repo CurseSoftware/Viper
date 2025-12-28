@@ -17,6 +17,7 @@ add_subdirectory(driver)
 add_subdirectory(source)
 add_subdirectory(base)
 add_subdirectory(diagnostics)
+add_subdirectory(lex)
 
 message("Sources: ${TOOLCHAIN_SOURCES}")
 
@@ -27,6 +28,7 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE source)
 target_link_libraries("${PROJECT_NAME}" PRIVATE driver)
 target_link_libraries("${PROJECT_NAME}" PRIVATE base)
 target_link_libraries("${PROJECT_NAME}" PRIVATE diagnostics)
+target_link_libraries("${PROJECT_NAME}" PRIVATE lex)
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     $<INSTALL_INTERFACE:include>

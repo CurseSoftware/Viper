@@ -56,8 +56,13 @@ namespace viper::toolchain::driver
         } catch (std::runtime_error& err)
         {
             diagnoseInvalidCommand(err.what());
-            std::cout << _command_line.getUsageString() << "\n";
+            emitUsage();
         }
+    }
+
+    auto Driver::emitUsage(std::ostream& out) const noexcept -> void
+    {
+        out << _command_line.getUsageString() << "\n";
     }
 
     auto Driver::diagnoseInvalidCommand(const std::string& command) noexcept -> void

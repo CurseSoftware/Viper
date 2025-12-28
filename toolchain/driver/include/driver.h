@@ -5,6 +5,7 @@
 #include "driver_subcommand.h"
 #include <common/command_line.h>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <unordered_map>
 
@@ -39,6 +40,9 @@ namespace viper::toolchain::driver
 
             // Diagnose an invalid command from the command line
             auto diagnoseInvalidCommand(const std::string&) noexcept -> void;
+
+            // Print the usage string
+            auto emitUsage(std::ostream& out = std::cout) const noexcept -> void;
 
         // Member fields
         private:

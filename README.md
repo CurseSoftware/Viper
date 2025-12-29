@@ -54,3 +54,102 @@ or
 ```bash
 ./viper lex --file input.viper
 ```
+
+## Concept Language
+The language itself is not fleshed out, and as this is experimental it will greatly vary over time.
+
+Here are base-level concepts for the language as of now:
+
+Structures:
+```c++
+struct Point
+{
+    x: i32;
+    y: i32;
+}
+```
+
+Functions:
+```c++
+define my_function() -> Point
+{
+    return Point {
+        x: 0,
+        y: 0
+    };
+}
+```
+
+Entry point to program:
+```c++
+// Entry function
+#[entry]
+define main() -> i32
+{
+    return 0;
+}
+```
+
+Modifiers
+```c
+#[printable, debug_printable]
+struct Point
+{
+    x: i32;
+    y: i32;
+}
+
+define test() -> void
+{
+    let p: Point = Point {
+        x: 0,
+        y: 0
+    };
+
+    p.print();
+}
+
+// This is a pure function
+define my_function(p: Point&) -> void
+{
+    // Will not compile
+    p.method_that_mutates();
+
+    // Non-modifying, produces no side-effects. Compiles fine
+    p.print();
+}
+
+// This is an impure function
+@impure
+define my_function_2(p: Point&) -> void
+{
+    // Marked impure, compiles fine now
+    p.method_that_mutates();
+
+    // Non-modifying, produces no side-effects. Compiles fine
+    p.print();
+}
+```
+
+Unions function similar to Rust tagged-unions/enums:
+```c
+union Token
+{
+    Keyword(std::string),
+    Equal,
+    Plus,
+    Minus,
+    Slash,
+    ...
+}
+```
+
+Other language concepts:
+- Explicit mutability
+    - All variables are immutable by default, and mutability is explicit in the syntax (via `mut` keyword)
+- Trait-like system
+    - This is not fleshed out, but the trait system in Rust is great at defining shared behaviors without inheritence. As this language is largely designed with data-driven models in mind, we want to know what we can take from that system to make data-driven work easy and ergonomic.
+- Pure functions by default
+    - We are experimenting with all procedures being pure by default. To make an impure function you use the explicit `@impure` directive (syntax subject to change).
+    - The goal is to see what is achievable with this pattern, and is this useful at all.
+    - Obviously, no pure function can call an impure function while guaranteeing that no side-effects occur, so we have a function-flagging problem here. We wish to see what the effects of this are.

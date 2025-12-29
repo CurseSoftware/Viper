@@ -114,7 +114,7 @@ define my_function() -> Point
 Entry point to program:
 ```c++
 // Entry function
-#[entry]
+@entry
 define main() -> i32
 {
     return 0;

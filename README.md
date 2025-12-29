@@ -55,6 +55,32 @@ or
 ./viper lex --file input.viper
 ```
 
+## About the toolchain
+The compiler toolchain architecture is largely inspired by the [Carbon Compiler](https://github.com/carbon-language/carbon-lang).
+
+One of the main endeavors with this experiment is to see how we can create pieces of this toolchain and make them express the desired compiled language well.
+For example, a very ideal pattern for expressing syntax tokens would be:
+```c++
+class Token
+{
+    ...
+};
+
+class EqualToken : public Token<EqualToken> {...};
+class PlusToken : public Token<PlusToken> {...};
+
+// Done at compile time
+TokenMap()
+    .add_token("=", EqualToken)
+    .add_token("+", PlusToken)
+    ...
+```
+Where to add a new token you can just make another class, add it to the map, and the lexer handles the rest.
+This allows for ergonomic tweaking of the language while keeping runtime performance.
+
+For example, the Carbon toolchain uses the X-macro pattern for this behavior. However, this can mean various places in the source code that have to change in order to change things around. At times, this is very pleasant to work with, but it can also decouple what is actually happening when defining a new type (or whatever else).
+If there is a way to have an easily expressible system for tokenizing that relies heavily on compile-time execution while being flexible, we can hopefully make a more C++-like pattern rather than using macros. (Or maybe this is all just coping).
+
 ## Concept Language
 The language itself is not fleshed out, and as this is experimental it will greatly vary over time.
 

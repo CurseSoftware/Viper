@@ -8,6 +8,7 @@
 #include "driver_subcommand.h"
 #include "source/source_buffer.h"
 #include <istream>
+#include <memory>
 
 namespace viper::toolchain::driver
 {
@@ -24,7 +25,10 @@ namespace viper::toolchain::driver
     {
         // Constructors
         public:
-            [[nodiscard]] explicit LexCommand() = default;
+            [[nodiscard]] explicit LexCommand(std::weak_ptr<diagnostics::Consumer> consumer)
+                : _diagnostics_consumer{ std::move(consumer) }
+            {}
+
             LexCommand(const LexCommand&) = default;
             LexCommand(LexCommand&&) = default;
             ~LexCommand() override = default;
@@ -63,6 +67,8 @@ namespace viper::toolchain::driver
         private:
             // To be able to get the command name
             std::string _name { CommandName };
+
+            std::weak_ptr<diagnostics::Consumer> _diagnostics_consumer;
             
             /// Promises of values parsed from the command lines
             

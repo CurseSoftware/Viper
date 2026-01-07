@@ -88,8 +88,8 @@ namespace viper::toolchain::diagnostics
 
 
         public:
-            [[nodiscard]] explicit Emitter(std::shared_ptr<Consumer> consumer)
-                : _consumer{ consumer }
+            [[nodiscard]] explicit Emitter(std::weak_ptr<Consumer> consumer)
+                : _consumer{ std::move(consumer) }
             {}
         
         private:

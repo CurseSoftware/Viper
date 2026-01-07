@@ -88,7 +88,7 @@ namespace viper::toolchain::driver
         }
         std::cout << "Creating source buffer from: " << _input_arg.get().value() << '\n';
 
-        auto source_buffer_opt = source::SourceBuffer::fromFilePath(_input_arg.get().value());
+        auto source_buffer_opt = source::SourceBuffer::fromFilePath(_input_arg.get().value(), _diagnostics_consumer);
 
         return source_buffer_opt;
     }

@@ -21,7 +21,7 @@ namespace viper::toolchain::driver
 
         _source->printAsAscii();
         std::cout << '\n';
-        lex::lex();
+        lex::lex(_source.value());
     }
 
     auto CompilationUnit::getSourceBuffer(std::string_view filename) const noexcept -> std::optional<source::SourceBuffer>

@@ -53,6 +53,7 @@ VIPER_TOKEN_KIND_SYMBOL(ForwardSlashEqual, "/=")
     };
 
 VIPER_TOKEN_KIND_KEYWORD(Let, "let")
+VIPER_TOKEN_KIND_KEYWORD(Return, "return")
 VIPER_TOKEN_KIND_KEYWORD(Define, "define")
 VIPER_TOKEN_KIND_KEYWORD(Mut, "mut")
 

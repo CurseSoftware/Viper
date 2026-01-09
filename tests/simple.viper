@@ -1,4 +1,4 @@
-fn main() -> i32
+define main() -> i32
 {
     return 0;
 }

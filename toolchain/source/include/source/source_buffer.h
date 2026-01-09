@@ -34,6 +34,8 @@ namespace viper::toolchain::source
         // API
         public:
             auto printAsAscii() const noexcept -> bool;
+
+            auto getBuffer() const noexcept -> std::string_view { return _memory->getBuffer(); }
             
         // Constructor
         private:

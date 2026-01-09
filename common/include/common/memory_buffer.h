@@ -52,6 +52,8 @@ namespace viper::memory
             [[nodiscard]] auto begin() const noexcept -> const StorageType* { return _data; }
             [[nodiscard]] auto end() const noexcept -> const StorageType* { return _data + _length; }
 
+            [[nodiscard]] auto getBuffer() const noexcept -> std::string_view { return std::string_view(reinterpret_cast<const char*>(_data), _length); }
+
         // Constructors
         private:
             // Constructor is not noexcept so that the factory functions can catch

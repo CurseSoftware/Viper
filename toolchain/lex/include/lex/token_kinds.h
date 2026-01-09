@@ -36,6 +36,8 @@ namespace viper::toolchain::lex
     };
 
 #include "tokens.def"
+#undef VIPER_TOKEN_KIND_KEYWORD
+#undef VIPER_TOKEN_KIND_SYMBOL 
 
 } // namespace viper::toolchain::lex
 

@@ -4,10 +4,15 @@
 
 namespace viper::toolchain::lex
 {
-    class TokenInfo
+    class [[nodiscard]] TokenInfo
     {
         public:
+            explicit TokenInfo(TokenKind kind) : _kind{ kind } {}
+            
+            auto kind() const noexcept -> TokenKind { return _kind; }
+            
         private:
+            TokenKind _kind;
     };
 
 } // namespace viper::toolchain::lex

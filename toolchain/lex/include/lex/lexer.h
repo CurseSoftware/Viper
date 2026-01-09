@@ -3,6 +3,7 @@
 
 #include "diagnostics/consumer.h"
 #include "source/source_buffer.h"
+#include "token_kind.h"
 #include "tokenized_buffer.h"
 #include "tokens.h"
 #include <string_view>
@@ -44,6 +45,8 @@ namespace viper::toolchain::lex
         public:
             auto lex() && noexcept -> TokenizedBuffer;
 
+            auto lexError(std::string_view text, std::size_t& position) noexcept -> Result;
+
             auto lexKeywordOrIdentifier(std::string_view text, std::size_t& position) noexcept -> Result;
 
             auto lexHorizontalWhitespace(std::string_view text, std::size_t& position) noexcept -> Result;
@@ -57,11 +60,14 @@ namespace viper::toolchain::lex
             [[nodiscard]] auto skipHorizontalWhitespace(std::string_view text, std::size_t i) -> std::size_t;
 
             [[nodiscard]] auto skipVerticalWhitespace(std::string_view text, std::size_t i) -> std::size_t;
+
+            auto addLexedToken(TokenKind kind) noexcept -> void;
         
         private:
             source::SourceBuffer& _source;
             std::weak_ptr<diagnostics::Consumer> _diagnostics_consumer;
             const TokenSpec& _token_spec;
+            TokenizedBuffer _buffer;
     };
 } // namespace viper::toolchain::lex
 

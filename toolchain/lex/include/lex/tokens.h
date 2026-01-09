@@ -9,6 +9,22 @@
 #include <unordered_map>
 namespace viper::toolchain::lex
 {
+    class [[nodiscard]] TokenSpecInfo
+    {
+        public:
+            consteval explicit TokenSpecInfo(const char* pattern, TokenKind kind)
+                : _pattern{ pattern }
+                , _kind{ kind }
+            {}
+
+            constexpr auto pattern() const noexcept -> const char* { return _pattern; }
+            constexpr auto kind() const noexcept -> TokenKind { return _kind; }
+
+        private:
+            const char* _pattern;
+            TokenKind _kind;
+    };
+    
     class TokenSpec
     {
         public:
@@ -18,12 +34,22 @@ namespace viper::toolchain::lex
             }
 
         public:
+            /*
             consteval auto addKeyword(const char* name) -> TokenSpec
             {
                 _keywords[_keyword_index] = name;
                 _keyword_index++;
                 return *this;
             }
+            */
+            
+            consteval auto addKeyword(TokenSpecInfo info) -> TokenSpec
+            {
+                _keywords[_keyword_index] = info;
+                _keyword_index++;
+                return *this;
+            }
+            
             consteval auto identifierCanStartWith(char c) -> TokenSpec
             {
                 _id_start_byte_table[c] = true;
@@ -100,11 +126,11 @@ namespace viper::toolchain::lex
         public:
             auto printKeywords() const
             {
-                for (const auto* keyword : _keywords)
+                for (const auto& keyword : _keywords)
                 {
                     if (keyword)
                     {
-                        std::cout << "Keyword: " << keyword << '\n';
+                        std::cout << "Keyword: " << keyword.value().pattern() << '\n';
                     }
                 }
             }
@@ -136,11 +162,11 @@ namespace viper::toolchain::lex
                 return _id_start_byte_table[c];
             }
 
-            [[nodiscard]] auto isKeyword(std::string_view s) -> bool
+            [[nodiscard]] auto isKeyword(std::string_view s) const -> bool
             {
-                for (const auto* keyword : _keywords)
+                for (const auto& keyword : _keywords)
                 {
-                    if (keyword && s == keyword)
+                    if (keyword && s == keyword->pattern())
                     {
                         return true;
                     }
@@ -151,10 +177,13 @@ namespace viper::toolchain::lex
 
         private:
             int _keyword_index = 0;
-            std::array<const char*, 20> _keywords;
+            std::array<std::optional<TokenSpecInfo>, 20> _keywords;
 
-            std::array<bool, 256> _id_start_byte_table;
+            std::array<bool, 256> _id_start_byte_table {};
             std::array<bool, 256> _id_byte_table {};
+            
+            std::array<bool, 256> _single_char_symbol_byte_table {};
+            std::array<bool, 256> _symbol_byte_table {};
     };
 } // namespace viper::toolchain::lex
 

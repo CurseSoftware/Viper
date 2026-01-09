@@ -1,8 +1,11 @@
 #include "lex.h"
 #include "characters.h"
 #include "diagnostics/consumer.h"
+#include "diagnostics/diagnostic.h"
+#include "diagnostics/kinds.h"
 #include "lexer.h"
 #include "source/source_buffer.h"
+#include "token_kind.h"
 #include "token_kinds.h"
 #include "tokenized_buffer.h"
 #include "tokens.h"
@@ -23,9 +26,9 @@ namespace viper::toolchain::lex
     constexpr int IdByteTableSize = 256;
 
     static constexpr TokenSpec Spec = TokenSpec::specify()
-        .addKeyword("let")
-        .addKeyword("define")
-        .addKeyword("mut")
+        .addKeyword(TokenSpecInfo("let", TokenKind::Let))
+        .addKeyword(TokenSpecInfo("define", TokenKind::Define))
+        .addKeyword(TokenSpecInfo("mut", TokenKind::Mut))
         .identifierCanStartWith('-')
         .identifierCanStartWithLower()
         .identifierCanStartWithUpper()
@@ -74,14 +77,11 @@ namespace viper::toolchain::lex
             i++;
         }
 
-        std::cout << "Read " << i << " characters read: " << text.substr(0, i) << '\n';
-
         return text.substr(0, i);
     }
     
     auto Lexer::skipVerticalWhitespace(std::string_view text, std::size_t i) -> std::size_t
     {
-        std::cout << "Skipping vertical whitespace\n";
         std::size_t new_position = i;
         while (isVerticalWhitespace(text[new_position]))
         {
@@ -93,7 +93,6 @@ namespace viper::toolchain::lex
 
     auto Lexer::skipHorizontalWhitespace(std::string_view text, std::size_t i) -> std::size_t
     {
-        std::cout << "Skipping horizontal whitespace\n";
         std::size_t new_position = i;
         while (isHorizontalWhitespace(text[new_position]))
         {
@@ -105,32 +104,58 @@ namespace viper::toolchain::lex
 
     auto Lexer::lexHorizontalWhitespace(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
-        position += skipHorizontalWhitespace(text, position);
+        position = skipHorizontalWhitespace(text, position);
         return Result();
     }
 
     auto Lexer::lexVerticalWhitespace(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
-        position += skipVerticalWhitespace(text, position);
+        position = skipVerticalWhitespace(text, position);
         return Result();
+    }
+
+    auto Lexer::lexError(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
+    {
+        std::size_t i = position;
+        do {
+            // std::cout << "Invaid char: " << text[i] << '\n';
+            i++;
+        }
+        while (!_token_spec.isValidIdChar(text[i]) 
+            && !isNumeric(text[i])
+            && !isHorizontalWhitespace(text[i])
+            && !isVerticalWhitespace(text[i])
+            && !symbolStartsWith(text[i])
+        );
+
+        std::string_view error_text = text.substr(position, i-position);
+
+        diagnostics::make_diagnostic<diagnostics::InvalidCharactersDiagnostic>(diagnostics::Level::Error, std::string(error_text));
+
+        position += error_text.size();
+        // std::cout << "Error: " << error_text << '\n';
+
+        addLexedToken(TokenKind::Error);
+
+        return Lexer::Result::invalid();
     }
 
     auto Lexer::lexKeywordOrIdentifier(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
-        std::cout << "lexing keyword\n";
         if (static_cast<unsigned char>(text[position]) > 0x7F)
         {
             // TODO: return lex error for not supporting utf8
-            std::cout << "cannot lex utf-8\n";
             return Result::invalid();
         }
 
         int32_t byte_offset = position;
 
-        std::cout << "Substring: " << text.substr(position) << '\n';
         std::string_view id_text = scanIdentifier(text.substr(position), 0);
+        // std::cout << "Lexed id: " << id_text << " at position " << position << '\n';
 
         position += id_text.length();
+
+        addLexedToken(TokenKind::Id);
 
         return Result();
     }
@@ -148,6 +173,7 @@ namespace viper::toolchain::lex
         return dispatchNext(lexer, text, position); \
     }
 
+    VIPER_DISPATCH_LEX_TOKEN(lexError)
     VIPER_DISPATCH_LEX_TOKEN(lexKeywordOrIdentifier)
     VIPER_DISPATCH_LEX_TOKEN(lexHorizontalWhitespace)
     VIPER_DISPATCH_LEX_TOKEN(lexVerticalWhitespace)
@@ -160,7 +186,7 @@ namespace viper::toolchain::lex
 
         for (int i = 0; i < DispatchTableSize; i++)
         {
-            // set to dispatch an error
+            table[i] = Dispatch_lexError;
         }
 
         for (char c = 'a'; c <= 'z'; c++)
@@ -185,7 +211,8 @@ namespace viper::toolchain::lex
 
     static auto dispatchNext(Lexer& lexer, std::string_view text, std::size_t position) -> void
     {
-    std::cout << "Read char " << position << ": " << text[position] << '\n';
+
+        // std::cout << "Lexer encountered char: " << text[position]  << " at position " << position << '\n';
         [[likely]] if (position < text.size())
         {
             // This is tail recursion to avoid growing stack while doing this loop. 
@@ -202,21 +229,19 @@ namespace viper::toolchain::lex
         std::size_t position { 0 };
         dispatchNext(*this, source_text, position);
 
-        return {};
+        return std::move(_buffer);
+    }
+
+    auto Lexer::addLexedToken(TokenKind kind) noexcept -> void
+    {
+        _buffer.addToken(TokenInfo(kind));
     }
 
     auto lex(source::SourceBuffer& source_buffer, std::weak_ptr<diagnostics::Consumer> consumer) -> TokenizedBuffer
     {
-        (void)source_buffer;
-        auto token = LetTokenKind();
-        std::cout << "Is symbol: " << token.is_symbol() << '\n';
-        std::cout << "Text pattern: " << token.text_pattern() << '\n';
-        std::cout << "Is Grouping: " << token.is_grouping() << '\n';
-        std::cout << "Is Keyword: " << token.is_keyword() << '\n';
-
         Spec.printKeywords();
         auto tokens = Lexer(source_buffer, consumer, Spec).lex();
 
-        return {};
+        return std::move(tokens);
     }
 } // namespace viper::toolchain::lex

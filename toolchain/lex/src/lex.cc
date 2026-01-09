@@ -119,7 +119,7 @@ namespace viper::toolchain::lex
     {
         std::size_t i = position;
         do {
-            // std::cout << "Invaid char: " << text[i] << '\n';
+            std::cout << "Invaid char: " << text[i] << '\n';
             i++;
         }
         while (!_token_spec.isValidIdChar(text[i]) 
@@ -152,13 +152,14 @@ namespace viper::toolchain::lex
         int32_t byte_offset = position;
 
         std::string_view id_text = scanIdentifier(text.substr(position), 0);
-        // std::cout << "Lexed id: " << id_text << " at position " << position << '\n';
+        std::cout << "Lexed id: " << id_text << " at position " << position << '\n';
 
         position += id_text.length();
 
         if (auto keyword_kind = _token_spec.keywordKind(id_text))
         {
             addLexedToken(keyword_kind.value());
+            return Result();
         }
 
         addLexedToken(TokenKind::Id);

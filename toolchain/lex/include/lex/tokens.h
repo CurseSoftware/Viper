@@ -1,6 +1,7 @@
 #ifndef VIPER_TOOLCHAIN_LEX_TOKENS_H
 #define VIPER_TOOLCHAIN_LEX_TOKENS_H
 
+#include "token_info.h"
 #include "token_kind.h"
 #include <array>
 #include <cstdint>
@@ -24,6 +25,8 @@ namespace viper::toolchain::lex
         private:
             const char* _pattern;
             TokenKind _kind;
+            std::optional<TokenKind> _closing { std::nullopt };
+            std::optional<TokenKind> _opening { std::nullopt };
     };
     
     class TokenSpec
@@ -34,20 +37,26 @@ namespace viper::toolchain::lex
                 return TokenSpec();
             }
 
-        public:
-            /*
-            consteval auto addKeyword(const char* name) -> TokenSpec
+            enum Kind
             {
-                _keywords[_keyword_index] = name;
-                _keyword_index++;
-                return *this;
-            }
-            */
-            
+                IdStart,
+                Id,
+                Symbol
+            };
+
+        public:
             consteval auto addKeyword(TokenSpecInfo info) -> TokenSpec
             {
                 _keywords[_keyword_index] = info;
                 _keyword_index++;
+                return *this;
+            }
+
+            consteval auto addSymbol(TokenSpecInfo info) -> TokenSpec
+            {
+                _symbol_start_byte_table[info.pattern()[0]] = true;
+                _symbols[_symbol_index] = info;
+                _symbol_index++;
                 return *this;
             }
             
@@ -192,12 +201,14 @@ namespace viper::toolchain::lex
         private:
             int _keyword_index = 0;
             std::array<std::optional<TokenSpecInfo>, 20> _keywords;
+            
+            int _symbol_index = 0;
+            std::array<std::optional<TokenSpecInfo>, 20> _symbols;
 
             std::array<bool, 256> _id_start_byte_table {};
             std::array<bool, 256> _id_byte_table {};
             
-            std::array<bool, 256> _single_char_symbol_byte_table {};
-            std::array<bool, 256> _symbol_byte_table {};
+            std::array<bool, 256> _symbol_start_byte_table {};
     };
 } // namespace viper::toolchain::lex
 

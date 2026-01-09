@@ -27,6 +27,7 @@ namespace viper::toolchain::lex
 
     static constexpr TokenSpec Spec = TokenSpec::specify()
         .addKeyword(TokenSpecInfo("let", TokenKind::Let))
+        .addKeyword(TokenSpecInfo("return", TokenKind::Return))
         .addKeyword(TokenSpecInfo("define", TokenKind::Define))
         .addKeyword(TokenSpecInfo("mut", TokenKind::Mut))
         .identifierCanStartWith('-')
@@ -155,6 +156,11 @@ namespace viper::toolchain::lex
 
         position += id_text.length();
 
+        if (auto keyword_kind = _token_spec.keywordKind(id_text))
+        {
+            addLexedToken(keyword_kind.value());
+        }
+
         addLexedToken(TokenKind::Id);
 
         return Result();
@@ -241,6 +247,7 @@ namespace viper::toolchain::lex
     {
         Spec.printKeywords();
         auto tokens = Lexer(source_buffer, consumer, Spec).lex();
+        tokens.dumpTokens();
 
         return std::move(tokens);
     }

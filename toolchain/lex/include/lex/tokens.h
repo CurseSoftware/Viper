@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <optional>
 #include <unordered_map>
 namespace viper::toolchain::lex
 {
@@ -173,6 +174,19 @@ namespace viper::toolchain::lex
                 }
 
                 return false;
+            }
+
+            [[nodiscard]] auto keywordKind(std::string_view s) const -> std::optional<TokenKind>
+            {
+                for (const auto& keyword : _keywords)
+                {
+                    if (keyword && s == keyword->pattern())
+                    {
+                        return keyword->kind();
+                    }
+                }
+
+                return std::nullopt;
             }
 
         private:

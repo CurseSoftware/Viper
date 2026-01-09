@@ -11,6 +11,7 @@
 #include "tokens.h"
 #include <array>
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <iostream>
 #include <string_view>
@@ -30,44 +31,15 @@ namespace viper::toolchain::lex
         .addKeyword(TokenSpecInfo("return", TokenKind::Return))
         .addKeyword(TokenSpecInfo("define", TokenKind::Define))
         .addKeyword(TokenSpecInfo("mut", TokenKind::Mut))
-        .identifierCanStartWith('-')
+        .identifierCanStartWith('_')
         .identifierCanStartWithLower()
         .identifierCanStartWithUpper()
-        .identifierCanInclude('-')
+        .identifierCanInclude('_')
         .identifierCanIncludeLower()
         .identifierCanIncludeUpper()
         .identifierCanIncludeNumeric()
+        .addSymbol(TokenSpecInfo("->", TokenKind::MinusGreater))
     ;
-
-    // This is the table of characters that is valid for the start of an identifier
-    static constexpr std::array<bool, IdByteTableSize> IdStartBtyteTable = [] {
-        std::array<bool, IdByteTableSize> table = {};
-
-        for (char c = 'A'; c <= 'Z'; c++)
-        {
-            table[c] = true;
-        }
-        for (char c = 'a'; c <= 'z'; c++)
-        {
-            table[c] = true;
-        }
-
-        table['_'] = true;
-
-        return table;
-    }();
-
-    // This is the byte table for all characters that are valid after the start of an identifier
-    static constexpr std::array<bool, IdByteTableSize> IdByteTable = [] {
-        std::array<bool, IdByteTableSize> table = IdStartBtyteTable;
-
-        for (char c = '0'; c <= '9'; c++)
-        {
-            table[c] = true;
-        }
-
-        return table;
-    }();
 
     // Scan for the text of an identifier
     auto Lexer::scanIdentifier(std::string_view text, std::size_t i) -> std::string_view
@@ -119,7 +91,7 @@ namespace viper::toolchain::lex
     {
         std::size_t i = position;
         do {
-            std::cout << "Invaid char: " << text[i] << '\n';
+            // std::cout << "Invaid char: " << text[i] << '\n';
             i++;
         }
         while (!_token_spec.isValidIdChar(text[i]) 
@@ -141,6 +113,30 @@ namespace viper::toolchain::lex
         return Lexer::Result::invalid();
     }
 
+    auto Lexer::lexSymbol(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
+    {
+        // std::cout << "lexing symbol\n";
+        for (const auto& symbol : _token_spec.symbols())
+        {
+            if (symbol && symbol->pattern()[0] == text[position])
+            {
+                std::cout << "Checking: " << symbol->pattern() << '\n';
+                if (text.substr(position).starts_with(symbol->pattern()))
+                {
+                    std::cout << "does start with\n";
+                    addLexedToken(symbol->kind());
+                    position += strlen(symbol->pattern());
+                    return Result();
+                }
+            }
+        }
+
+        // TODO: this will spin forever if not changed
+        addLexedToken(TokenKind::Error);
+
+        return Result::invalid();
+    }
+
     auto Lexer::lexKeywordOrIdentifier(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
         if (static_cast<unsigned char>(text[position]) > 0x7F)
@@ -152,7 +148,7 @@ namespace viper::toolchain::lex
         int32_t byte_offset = position;
 
         std::string_view id_text = scanIdentifier(text.substr(position), 0);
-        std::cout << "Lexed id: " << id_text << " at position " << position << '\n';
+        // std::cout << "Lexed id: " << id_text << " at position " << position << '\n';
 
         position += id_text.length();
 
@@ -184,37 +180,44 @@ namespace viper::toolchain::lex
     VIPER_DISPATCH_LEX_TOKEN(lexKeywordOrIdentifier)
     VIPER_DISPATCH_LEX_TOKEN(lexHorizontalWhitespace)
     VIPER_DISPATCH_LEX_TOKEN(lexVerticalWhitespace)
+    VIPER_DISPATCH_LEX_TOKEN(lexSymbol)
 
 
     // Create the dispatch table
-    static consteval auto makeDispatchTable() -> DispatchTableT
+    static consteval auto makeDispatchTable(TokenSpec spec) -> DispatchTableT
     {
         DispatchTableT table {};
 
         for (int i = 0; i < DispatchTableSize; i++)
         {
-            table[i] = Dispatch_lexError;
+            table[i] = &Dispatch_lexError;
         }
 
-        for (char c = 'a'; c <= 'z'; c++)
+        for (int i = 0; i < spec.idStartByteTable().size(); i++)
         {
-            table[c] = Dispatch_lexKeywordOrIdentifier;
+            if (spec.idStartByteTable()[i])
+            {
+                table[i] = &Dispatch_lexKeywordOrIdentifier;
+            }
         }
-
-        for (char c = 'A'; c <= 'z'; c++)
+        
+        for (int i = 0; i < spec.symbolStartByteTable().size(); i++)
         {
-            table[c] = Dispatch_lexKeywordOrIdentifier;
+            if (spec.symbolStartByteTable()[i])
+            {
+                table[i] = &Dispatch_lexSymbol;
+            }
         }
 
-        table[' '] = Dispatch_lexHorizontalWhitespace;
-        table['\t'] = Dispatch_lexHorizontalWhitespace;
-        table['\n'] = Dispatch_lexVerticalWhitespace;
-        table['\r'] = Dispatch_lexVerticalWhitespace;
+        table[' '] = &Dispatch_lexHorizontalWhitespace;
+        table['\t'] = &Dispatch_lexHorizontalWhitespace;
+        table['\n'] = &Dispatch_lexVerticalWhitespace;
+        table['\r'] = &Dispatch_lexVerticalWhitespace;
 
         return table;
     }
 
-    static constexpr DispatchTableT DispatchTable = makeDispatchTable();
+    static constexpr DispatchTableT DispatchTable = makeDispatchTable(Spec);
 
     static auto dispatchNext(Lexer& lexer, std::string_view text, std::size_t position) -> void
     {

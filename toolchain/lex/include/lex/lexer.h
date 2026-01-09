@@ -52,6 +52,8 @@ namespace viper::toolchain::lex
             auto lexHorizontalWhitespace(std::string_view text, std::size_t& position) noexcept -> Result;
             
             auto lexVerticalWhitespace(std::string_view text, std::size_t& position) noexcept -> Result;
+            
+            auto lexSymbol(std::string_view text, std::size_t& position) noexcept -> Result;
 
         // Private Methods
         private:

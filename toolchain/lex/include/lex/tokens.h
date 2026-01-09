@@ -37,13 +37,6 @@ namespace viper::toolchain::lex
                 return TokenSpec();
             }
 
-            enum Kind
-            {
-                IdStart,
-                Id,
-                Symbol
-            };
-
         public:
             consteval auto addKeyword(TokenSpecInfo info) -> TokenSpec
             {
@@ -197,6 +190,10 @@ namespace viper::toolchain::lex
 
                 return std::nullopt;
             }
+
+            [[nodiscard]] auto symbols() const -> const std::array<std::optional<TokenSpecInfo>, 20>& { return _symbols; }
+            [[nodiscard]] constexpr auto idStartByteTable() const -> std::array<bool, 256> { return _id_start_byte_table; }
+            [[nodiscard]] constexpr auto symbolStartByteTable() const -> std::array<bool, 256> { return _symbol_start_byte_table; }
 
         private:
             int _keyword_index = 0;

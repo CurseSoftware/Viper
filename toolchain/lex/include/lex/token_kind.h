@@ -1,5 +1,6 @@
 #ifndef VIPER_TOOLCHAIN_LEX_TOKEN_KIND_H
 #define VIPER_TOOLCHAIN_LEX_TOKEN_KIND_H
+#include <iostream>
 
 namespace viper::toolchain::lex
 {
@@ -48,7 +49,7 @@ namespace viper::toolchain::lex
 #undef VIPER_TOKEN_KIND_KEYWORD
 #undef VIPER_TOKEN_KIND_SYMBOL
 
-#define VIPER_TOKEN_KIND_SYMBOL(Name, Pattern) if (#Pattern[0] == c) return true;
+#define VIPER_TOKEN_KIND_SYMBOL(Name, Pattern) if (Pattern[0] == c) return true; 
     inline auto symbolStartsWith(char c) noexcept -> bool
     {
 #include "tokens.def"

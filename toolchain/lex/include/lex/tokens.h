@@ -36,6 +36,8 @@ namespace viper::toolchain::lex
             {
                 return TokenSpec();
             }
+            
+            static constexpr int NumSymbols = 30;
 
         public:
             consteval auto addKeyword(TokenSpecInfo info) -> TokenSpec
@@ -191,7 +193,7 @@ namespace viper::toolchain::lex
                 return std::nullopt;
             }
 
-            [[nodiscard]] auto symbols() const -> const std::array<std::optional<TokenSpecInfo>, 20>& { return _symbols; }
+            [[nodiscard]] auto symbols() const -> const std::array<std::optional<TokenSpecInfo>, NumSymbols>& { return _symbols; }
             [[nodiscard]] constexpr auto idStartByteTable() const -> std::array<bool, 256> { return _id_start_byte_table; }
             [[nodiscard]] constexpr auto symbolStartByteTable() const -> std::array<bool, 256> { return _symbol_start_byte_table; }
 
@@ -200,7 +202,7 @@ namespace viper::toolchain::lex
             std::array<std::optional<TokenSpecInfo>, 20> _keywords;
             
             int _symbol_index = 0;
-            std::array<std::optional<TokenSpecInfo>, 20> _symbols;
+            std::array<std::optional<TokenSpecInfo>, NumSymbols> _symbols;
 
             std::array<bool, 256> _id_start_byte_table {};
             std::array<bool, 256> _id_byte_table {};

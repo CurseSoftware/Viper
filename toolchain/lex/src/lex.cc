@@ -39,6 +39,24 @@ namespace viper::toolchain::lex
         .identifierCanIncludeUpper()
         .identifierCanIncludeNumeric()
         .addSymbol(TokenSpecInfo("->", TokenKind::MinusGreater))
+        .addSymbol(TokenSpecInfo("(", TokenKind::LeftParen))
+        .addSymbol(TokenSpecInfo(")", TokenKind::RightParen))
+        .addSymbol(TokenSpecInfo("==", TokenKind::EqualEqual))
+        .addSymbol(TokenSpecInfo("+=", TokenKind::PlusEqual))
+        .addSymbol(TokenSpecInfo("/=", TokenKind::ForwardSlashEqual))
+        .addSymbol(TokenSpecInfo("*=", TokenKind::AsteriskEqual))
+        .addSymbol(TokenSpecInfo("+", TokenKind::Asterisk))
+        .addSymbol(TokenSpecInfo("+", TokenKind::Plus))
+        .addSymbol(TokenSpecInfo("-", TokenKind::Minus))
+        .addSymbol(TokenSpecInfo("=", TokenKind::Equal))
+        .addSymbol(TokenSpecInfo("/", TokenKind::ForwardSlash))
+        .addSymbol(TokenSpecInfo("::", TokenKind::ColonColon))
+        .addSymbol(TokenSpecInfo(":", TokenKind::Colon))
+        .addSymbol(TokenSpecInfo(";", TokenKind::SemiColon))
+        .addSymbol(TokenSpecInfo("[", TokenKind::LeftBracket))
+        .addSymbol(TokenSpecInfo("]", TokenKind::RightBracket))
+        .addSymbol(TokenSpecInfo("{", TokenKind::LeftCurly))
+        .addSymbol(TokenSpecInfo("}", TokenKind::RightCurly))
     ;
 
     // Scan for the text of an identifier
@@ -106,7 +124,7 @@ namespace viper::toolchain::lex
         diagnostics::make_diagnostic<diagnostics::InvalidCharactersDiagnostic>(diagnostics::Level::Error, std::string(error_text));
 
         position += error_text.size();
-        // std::cout << "Error: " << error_text << '\n';
+        std::cout << "Error: " << error_text << '\n';
 
         addLexedToken(TokenKind::Error);
 

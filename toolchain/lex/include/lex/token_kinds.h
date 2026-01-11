@@ -20,23 +20,6 @@ namespace viper::toolchain::lex
             static constexpr const char* TextPattern { pattern }; \
     };
 
-VIPER_TOKEN_KIND_SYMBOL(Equal, "=")
-VIPER_TOKEN_KIND_SYMBOL(Plus, "+")
-VIPER_TOKEN_KIND_SYMBOL(Minus, "-")
-VIPER_TOKEN_KIND_SYMBOL(Asterisk, "*")
-VIPER_TOKEN_KIND_SYMBOL(ForwardSlash, "/")
-VIPER_TOKEN_KIND_SYMBOL(Comma, ",")
-VIPER_TOKEN_KIND_SYMBOL(Period, ".")
-VIPER_TOKEN_KIND_SYMBOL(Colon, ":")
-VIPER_TOKEN_KIND_SYMBOL(SemiColon, "");
-
-VIPER_TOKEN_KIND_SYMBOL(ColonColon, "::")
-VIPER_TOKEN_KIND_SYMBOL(EqualEqual, "==")
-VIPER_TOKEN_KIND_SYMBOL(PlusEqual, "+=")
-VIPER_TOKEN_KIND_SYMBOL(MinusEqual, "-=")
-VIPER_TOKEN_KIND_SYMBOL(AsteriskEqual, "*=")
-VIPER_TOKEN_KIND_SYMBOL(ForwardSlashEqual, "/=")
-
 // ---------------------------------------------------------
 // Keyword Tokens
 // ---------------------------------------------------------
@@ -52,9 +35,9 @@ VIPER_TOKEN_KIND_SYMBOL(ForwardSlashEqual, "/=")
             static constexpr const char* TextPattern { pattern }; \
     };
 
-VIPER_TOKEN_KIND_KEYWORD(Let, "let")
-VIPER_TOKEN_KIND_KEYWORD(Define, "define")
-VIPER_TOKEN_KIND_KEYWORD(Mut, "mut")
+#include "tokens.def"
+#undef VIPER_TOKEN_KIND_KEYWORD
+#undef VIPER_TOKEN_KIND_SYMBOL 
 
 } // namespace viper::toolchain::lex
 

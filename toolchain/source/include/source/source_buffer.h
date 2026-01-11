@@ -1,19 +1,20 @@
 #ifndef VIPER_SOURCE_SOURCE_BUFFER_H
 #define VIPER_SOURCE_SOURCE_BUFFER_H
 
+#include "diagnostics/consumer.h"
 #include "common/memory_buffer.h"
 #include "common/utf-8.h"
 #include <common/filesystem.h>
 #include <optional>
 
-namespace viper::source
+namespace viper::toolchain::source
 {
     class SourceBuffer
     {
         // Factory functions
         public:
             // Create the source buffer from a specified `viper::fs::FilePath`
-            [[nodiscard]] static auto fromFilePath(const fs::FilePath& path) noexcept -> std::optional<SourceBuffer>;
+            [[nodiscard]] static auto fromFilePath(const fs::FilePath& path, std::weak_ptr<diagnostics::Consumer> consumer) noexcept -> std::optional<SourceBuffer>;
             
             // Create the source buffer from a specified `viper::fs::File`
             // TOOD: create a `FileRef` util so that we can get a non-owning reference to this file rather than 
@@ -33,6 +34,8 @@ namespace viper::source
         // API
         public:
             auto printAsAscii() const noexcept -> bool;
+
+            auto getBuffer() const noexcept -> std::string_view { return _memory->getBuffer(); }
             
         // Constructor
         private:
@@ -46,6 +49,6 @@ namespace viper::source
 
             std::unique_ptr<memory::MemoryBuffer> _memory { nullptr };
     };
-} // namespace viper::source
+} // namespace viper::toolchain::source
 
 #endif // VIPER_SOURCE_SOURCE_BUFFER_H

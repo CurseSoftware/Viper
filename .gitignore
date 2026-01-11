@@ -1,8 +1,9 @@
 build_debug
 build_release
+build*
 
 .cache
 
 # This should be a symlink anyway
 compile_commands.json
-viper
+viper*

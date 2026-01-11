@@ -1,3 +1,4 @@
+#include "compilation_unit.h"
 #include "lex/lex.h"
 #include "lex_subcommand.h"
 #include "common/filesystem.h"
@@ -36,17 +37,9 @@ namespace viper::toolchain::driver
 
         log::info("Input file: {}", input_name);
         log::info("Output file: {}", output_name);
-        
-        auto source_buffer = createSourceBuffer();
-        if (!source_buffer)
-        {
-            std::cout << "Failed to create source buffer\n";
-        }
 
-        source_buffer->printAsAscii();
-        std::cout << '\n';
-
-        lex::lex();
+        auto compilation_unit = CompilationUnit(input_name, _diagnostics_consumer);
+        compilation_unit.tokenize();
     }
 
     auto LexCommand::createSourceMemoryBuffer() noexcept -> std::unique_ptr<memory::MemoryBuffer>
@@ -88,7 +81,7 @@ namespace viper::toolchain::driver
         }
         std::cout << "Creating source buffer from: " << _input_arg.get().value() << '\n';
 
-        auto source_buffer_opt = source::SourceBuffer::fromFilePath(_input_arg.get().value());
+        auto source_buffer_opt = source::SourceBuffer::fromFilePath(_input_arg.get().value(), _diagnostics_consumer);
 
         return source_buffer_opt;
     }

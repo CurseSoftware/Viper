@@ -26,7 +26,7 @@ namespace viper::toolchain::driver
     {
         _commands.emplace(
             LexCommand::CommandName
-            , std::make_unique<LexCommand>()
+            , std::make_unique<LexCommand>(_consumer)
         );
 
         // TODO: add the other commands as they are implemented

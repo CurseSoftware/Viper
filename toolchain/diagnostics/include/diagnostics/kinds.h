@@ -28,7 +28,7 @@ VIPER_DIAGNOSTIC_KIND(FileNotFound, "File not found: {}", std::string)
 // --------------------------- //
 //      LEXER DIAGNOSTICS      //
 // --------------------------- //
-VIPER_DIAGNOSTIC_KIND(InvalidToken, "Invalid Token: {} {}", int, std::string)
+VIPER_DIAGNOSTIC_KIND(InvalidCharacters, "Found invalid characters while parsing: {}", std::string)
 
 } // namespace viper::toolchain::diagnostics
 

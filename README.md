@@ -84,6 +84,31 @@ However, this can mean various places in the source code that have to change in 
 
 At times, this is very pleasant to work with, but it can also decouple what is actually happening when defining a new type (or whatever else).
 
+Right now, we have something that works well:
+```c++
+static constexpr TokenSpec spex = TokenSpec::specify()
+    .addKeyword(TokenSpecInfo("let", TokenKind::Let))
+    .addKeyword(TokenSpecInfo("return", TokenKind::Return))
+    .identifierCanStartWith('_')
+    .identifierCanStartWithLower()
+    .identifierCanStartWithUpper()
+    .identifierCanInclude('_')
+    .identifierCanIncludeLower()
+    .identifierCanIncludeUpper()
+    .identifierCanIncludeNumeric()
+    .addSymbol(TokenSpecInfo("->", TokenKind::MinusGreater))
+    .addSymbol(TokenSpecInfo("(", TokenKind::LeftParen))
+    .addSymbol(TokenSpecInfo(")", TokenKind::RightParen))
+    .addSymbol(TokenSpecInfo("==", TokenKind::EqualEqual))
+    .addSymbol(TokenSpecInfo("+=", TokenKind::PlusEqual))
+    .addSymbol(TokenSpecInfo("/=", TokenKind::ForwardSlashEqual))
+    .addSymbol(TokenSpecInfo("*=", TokenKind::AsteriskEqual))
+    .addSymbol(TokenSpecInfo("+", TokenKind::Asterisk))
+    ...
+;
+```
+This works well for defining the valid characters and patterns that symbols, keywords, and identifiers should have. This is only a start though.
+
 If there is a way to have an easily expressible system for tokenizing that relies heavily on compile-time execution while being flexible, we can hopefully make a more C++-like pattern rather than using macros. (Or maybe this is all just coping).
 
 ## Concept Language

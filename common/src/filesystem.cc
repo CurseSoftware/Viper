@@ -61,7 +61,11 @@ namespace viper::fs
 
     auto File::readContentToString() noexcept -> std::string
     {
-        std::string buffer { std::istreambuf_iterator<char>(_file_stream), std::istreambuf_iterator<char>() };
+        // std::string buffer { std::istreambuf_iterator<char>(_file_stream), std::istreambuf_iterator<char>() };
+        _file_stream.seekg(0, std::ios::end);
+        std::string buffer(_file_stream.tellg(), '\0');
+        _file_stream.seekg(0);
+        _file_stream.read(buffer.data(), buffer.size());
         return buffer;
     }
 

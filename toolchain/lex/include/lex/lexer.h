@@ -17,9 +17,10 @@ namespace viper::toolchain::lex
             class [[nodiscard]] Result
             {
                 public:
-                    explicit Result()
+                    // This is mainly used for tail recursion
+                    explicit(false) Result(TokenIndex discarded_index)
                         : _valid_token_formed{ true }
-                    {}
+                    { (void)discarded_index; }
 
                     explicit Result(bool valid)
                         : _valid_token_formed{ valid }
@@ -45,15 +46,17 @@ namespace viper::toolchain::lex
         public:
             auto lex() && noexcept -> TokenizedBuffer;
 
+        // Token lexer methods
+        public:
             auto lexError(std::string_view text, std::size_t& position) noexcept -> Result;
-
             auto lexKeywordOrIdentifier(std::string_view text, std::size_t& position) noexcept -> Result;
-
-            auto lexHorizontalWhitespace(std::string_view text, std::size_t& position) noexcept -> Result;
-            
-            auto lexVerticalWhitespace(std::string_view text, std::size_t& position) noexcept -> Result;
-            
             auto lexSymbol(std::string_view text, std::size_t& position) noexcept -> Result;
+            auto lexNumericLiteral(std::string_view text, std::size_t& position) noexcept -> Result;
+
+        // Non-token lexer methods
+        public:
+            auto lexHorizontalWhitespace(std::string_view text, std::size_t& position) noexcept -> void;
+            auto lexVerticalWhitespace(std::string_view text, std::size_t& position) noexcept -> void;
 
         // Private Methods
         private:
@@ -63,7 +66,7 @@ namespace viper::toolchain::lex
 
             [[nodiscard]] auto skipVerticalWhitespace(std::string_view text, std::size_t i) -> std::size_t;
 
-            auto addLexedToken(TokenKind kind) noexcept -> void;
+            auto addLexedToken(TokenKind kind) noexcept -> TokenIndex;
         
         private:
             source::SourceBuffer& _source;

@@ -19,7 +19,7 @@ namespace viper::toolchain::driver
 
         // TODO: profile memory usage
 
-        _source->printAsAscii();
+        // _source->printAsAscii();
         std::cout << '\n';
         lex::lex(_source.value(), _diagnostics_consumer);
     }

@@ -1,5 +1,6 @@
 #include "memory_buffer.h"
 #include <cstdlib>
+#include <iostream>
 #include <memory>
 
 namespace viper::memory
@@ -63,6 +64,7 @@ namespace viper::memory
     // Destructor
     MemoryBuffer::~MemoryBuffer() noexcept
     {
+        std::cout << "Deleting data\n";
         delete[] _data;
     }
 

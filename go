@@ -25,7 +25,7 @@ def handle_build(args):
 
     print(f"Performing {mode} build")
 
-    subprocess.run(["cmake", "-B", f"build_{mode}", toolchain, "."])
+    subprocess.run(["cmake", f"{mode_flag}", "-B", f"build_{mode}", toolchain, "."])
     subprocess.run(["cmake", "--build", f"build_{mode}"])
 
 

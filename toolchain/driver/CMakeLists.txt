@@ -35,5 +35,6 @@ target_link_libraries("${PROJECT_NAME}" PUBLIC source)
 target_link_libraries("${PROJECT_NAME}" PUBLIC base)
 target_link_libraries("${PROJECT_NAME}" PUBLIC diagnostics)
 target_link_libraries("${PROJECT_NAME}" PUBLIC lex)
+target_link_libraries("${PROJECT_NAME}" PUBLIC testing)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")

@@ -17,6 +17,8 @@ namespace viper::toolchain::lex
 
             auto size() const noexcept -> std::size_t { return _token_infos.size(); }
 
+            auto tokens() const noexcept -> const std::vector<TokenInfo>& { return _token_infos; }
+
             // Add a new token into this buffer
             auto addToken(TokenInfo info) noexcept -> TokenIndex;
 

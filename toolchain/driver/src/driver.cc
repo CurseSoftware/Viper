@@ -5,6 +5,7 @@
 #include "lex_subcommand.h"
 #include "diagnostics/diagnostic.h"
 #include "diagnostics/kinds.h"
+#include "test_subcommand.h"
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -29,6 +30,10 @@ namespace viper::toolchain::driver
             , std::make_unique<LexCommand>(_consumer)
         );
 
+        _commands.emplace(
+            TestCommand::CommandName
+            , std::make_unique<TestCommand>()
+        );
         // TODO: add the other commands as they are implemented
     }
     

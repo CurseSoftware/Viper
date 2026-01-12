@@ -34,16 +34,16 @@ namespace viper::toolchain::testing
                 .message = result
             };
 
-            if (result)
+            if (result.has_value())
             {
-                total_passed++;
+                total_failed++;
             } 
             else
             {
-                total_failed++;
+                total_passed++;
             }
             
-            _out << format::format("{} in {} milliseconds\n", result ? "PASSED" : "FAILED", run_time.count());
+            _out << format::format("{} in {} milliseconds\n", result ? "FAILED" : "PASSED", run_time.count());
         }
 
         auto total_end = std::chrono::high_resolution_clock::now();

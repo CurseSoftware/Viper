@@ -43,6 +43,7 @@ namespace viper::toolchain::driver
     auto TestCommand::createLexTests() noexcept -> void
     {
         _manager.registerTest("Lex Keywords", lex::lexKeywordTest);
+        _manager.registerTest("Lex symbols", lex::lexSymbolTest);
     }
 
 } // namespace viper::toolchain::driver

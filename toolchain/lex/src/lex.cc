@@ -6,15 +6,12 @@
 #include "lexer.h"
 #include "source/source_buffer.h"
 #include "token_kind.h"
-#include "token_kinds.h"
 #include "tokenized_buffer.h"
 #include "tokens.h"
 #include <array>
 #include <cstdint>
 #include <cstring>
 #include <exception>
-#include <functional>
-#include <iostream>
 #include <string_view>
 
 namespace viper::toolchain::lex
@@ -45,8 +42,8 @@ namespace viper::toolchain::lex
         .addSymbol(TokenSpecInfo("==", TokenKind::EqualEqual))
         .addSymbol(TokenSpecInfo("+=", TokenKind::PlusEqual))
         .addSymbol(TokenSpecInfo("/=", TokenKind::ForwardSlashEqual))
+        .addSymbol(TokenSpecInfo("-=", TokenKind::MinusEqual))
         .addSymbol(TokenSpecInfo("*=", TokenKind::AsteriskEqual))
-        .addSymbol(TokenSpecInfo("+", TokenKind::Asterisk))
         .addSymbol(TokenSpecInfo("+", TokenKind::Plus))
         .addSymbol(TokenSpecInfo("-", TokenKind::Minus))
         .addSymbol(TokenSpecInfo("=", TokenKind::Equal))

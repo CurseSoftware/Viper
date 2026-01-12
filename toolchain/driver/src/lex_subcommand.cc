@@ -40,6 +40,7 @@ namespace viper::toolchain::driver
 
         auto compilation_unit = CompilationUnit(input_name, _diagnostics_consumer);
         compilation_unit.tokenize();
+        compilation_unit.tokens().dumpTokens();
     }
 
     auto LexCommand::createSourceMemoryBuffer() noexcept -> std::unique_ptr<memory::MemoryBuffer>

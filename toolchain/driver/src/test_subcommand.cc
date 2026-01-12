@@ -1,4 +1,5 @@
 #include "test_subcommand.h"
+#include "common/memory_buffer.h"
 #include "common/streams.h"
 #include "compilation_unit.h"
 #include "diagnostics/consumer.h"
@@ -20,6 +21,7 @@ namespace viper::toolchain::driver
     {
         // TODO: support sending this to file
 
+        createMemoryBufferTests();
         createLexTests();
 
         _manager.runAll();
@@ -55,6 +57,29 @@ namespace viper::toolchain::driver
         }
 
         return true;
+    }
+
+    auto bufferRawAllocateTest() -> bool
+    {
+        constexpr std::size_t ExpectedAllocationSize = 100;
+        char mem[ExpectedAllocationSize] = {};
+
+        auto buffer = memory::MemoryBuffer::from(
+            reinterpret_cast<memory::MemoryBuffer::StorageType*>(mem), 
+            ExpectedAllocationSize
+        );
+
+        if (!buffer)
+        {
+            return false;
+        }
+
+        return buffer.value()->size() == ExpectedAllocationSize;
+    }
+
+    auto TestCommand::createMemoryBufferTests() noexcept -> void
+    {
+        _manager.registerTest("Memory buffer simple allocation", bufferRawAllocateTest);
     }
     
     auto TestCommand::createLexTests() noexcept -> void

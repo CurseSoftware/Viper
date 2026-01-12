@@ -13,7 +13,7 @@ namespace viper::toolchain::testing
     auto Manager::runAll() -> AggregateRunResult
     {
         AggregateRunResult results {};
-        std::size_t tests_run { 1 };
+        std::size_t tests_run { 0 };
         std::size_t total_tests { _tests.size() };
         std::size_t total_passed { 0 };
         std::size_t total_failed { 0 };
@@ -23,7 +23,7 @@ namespace viper::toolchain::testing
         for (const auto& [name, test_function] : _tests)
         {
             auto test_start = std::chrono::high_resolution_clock::now();
-            _out << format::format("[{}/{}] Running \"{}\": ", tests_run, total_tests, name);
+            _out << format::format("[{}/{}] Running \"{}\": ", ++tests_run, total_tests, name);
             bool result = test_function();
             auto test_end = std::chrono::high_resolution_clock::now();
 

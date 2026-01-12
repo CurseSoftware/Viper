@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Sources for the base tool-chain
 file(GLOB_RECURSE LEX_SOURCES
     "${PROJECT_SOURCE_DIR}/src/*.cc"
+    "${PROJECT_SOURCE_DIR}/src/tests/*.cc"
 )
 
 file(GLOB_RECURSE LEX_HEADERS 

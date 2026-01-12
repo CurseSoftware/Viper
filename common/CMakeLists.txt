@@ -9,9 +9,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Sources for the base tool-chain
 file(GLOB COMMON_SOURCES
     "${PROJECT_SOURCE_DIR}/src/*.cc"
+    "${PROJECT_SOURCE_DIR}/src/tests/*.cc"
 )
 
-message("Common Sources: ${COMMON_SOURCES}")
+message("Common Sources: ${COMMON_SOURCES} ${COMMON_TEST_SOURCES}")
 
 add_library("${PROJECT_NAME}" STATIC "${COMMON_SOURCES}")
 

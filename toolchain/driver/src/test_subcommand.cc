@@ -1,14 +1,7 @@
 #include "test_subcommand.h"
-#include "common/memory_buffer.h"
-#include "common/streams.h"
-#include "compilation_unit.h"
-#include "diagnostics/consumer.h"
-#include "lex/lex.h"
-#include "lex/lexer.h"
-#include "lex/token_kind.h"
+#include "common/tests/memory_buffer_tests.h"
+#include "lex/tests/lex_tests.h"
 #include <cstddef>
-#include <filesystem>
-#include <ostream>
 #include <string>
 namespace viper::toolchain::driver
 {
@@ -27,64 +20,21 @@ namespace viper::toolchain::driver
         _manager.runAll();
     }
 
-    auto lexKeywordTest() -> bool
-    {
-        const std::string path { "tests/lex/keywords.viper" };
-        const std::vector<lex::TokenKind> expected = {
-            lex::TokenKind::Define,
-            lex::TokenKind::Let,
-            lex::TokenKind::Mut,
-        };
-        
-        auto null_out = NullOStream();
-        auto mock_consumer = std::make_shared<diagnostics::StreamConsumer>(null_out);
-        auto unit = CompilationUnit(path, mock_consumer);
-        
-        unit.tokenize();
-        auto tokens = unit.tokens().tokens();
-
-        if (tokens.size() != expected.size())
-        {
-            return false;
-        }
-
-        for (std::size_t i = 0; i < tokens.size(); i++)
-        {
-            if (expected[i] != tokens[i].kind())
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    auto bufferRawAllocateTest() -> bool
-    {
-        constexpr std::size_t ExpectedAllocationSize = 100;
-        char mem[ExpectedAllocationSize] = {};
-
-        auto buffer = memory::MemoryBuffer::from(
-            reinterpret_cast<memory::MemoryBuffer::StorageType*>(mem), 
-            ExpectedAllocationSize
-        );
-
-        if (!buffer)
-        {
-            return false;
-        }
-
-        return buffer.value()->size() == ExpectedAllocationSize;
-    }
 
     auto TestCommand::createMemoryBufferTests() noexcept -> void
     {
-        _manager.registerTest("Memory buffer simple allocation", bufferRawAllocateTest);
+        _manager.registerTest("Memory buffer simple allocation", bufferRawAllocateTestLarge);
+        _manager.registerTest("Memory buffer large allocation", bufferRawAllocateTestLarge);
+        _manager.registerTest("Memory buffer basic string view", bufferStringViewTest);
+        _manager.registerTest("Memory buffer large string view", bufferLargeStringViewTest);
+        _manager.registerTest("Memory buffer vector allocation", bufferVecAllocateTest);
+        _manager.registerTest("Memory buffer large vector allocation", bufferVecAllocateTestLarge);
+        _manager.registerTest("Memory buffer span cast", bufferSpanTest);
     }
     
     auto TestCommand::createLexTests() noexcept -> void
     {
-        _manager.registerTest("Lex Keywords", lexKeywordTest);
+        _manager.registerTest("Lex Keywords", lex::lexKeywordTest);
     }
 
 } // namespace viper::toolchain::driver

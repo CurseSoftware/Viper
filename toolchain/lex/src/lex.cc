@@ -308,11 +308,7 @@ VIPER_DISPATCH_LEX_NON_TOKEN(lexVerticalWhitespace)
 
     auto lex(source::SourceBuffer& source_buffer, std::weak_ptr<diagnostics::Consumer> consumer) -> TokenizedBuffer
     {
-        // Spec.printKeywords();
         auto tokens = Lexer(source_buffer, consumer, Spec).lex();
-        tokens.dumpTokens();
-        std::cout << "Lexed " << tokens.size() << " tokens\n";
-
         return std::move(tokens);
     }
 } // namespace viper::toolchain::lex

@@ -1,6 +1,5 @@
-
-
 #include "test_subcommand.h"
+#include "common/streams.h"
 #include "compilation_unit.h"
 #include "diagnostics/consumer.h"
 #include "lex/lex.h"
@@ -35,7 +34,8 @@ namespace viper::toolchain::driver
             lex::TokenKind::Mut,
         };
         
-        auto mock_consumer = std::make_shared<diagnostics::StreamConsumer>(std::cout);
+        auto null_out = NullOStream();
+        auto mock_consumer = std::make_shared<diagnostics::StreamConsumer>(null_out);
         auto unit = CompilationUnit(path, mock_consumer);
         
         unit.tokenize();

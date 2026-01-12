@@ -5,6 +5,7 @@
 #include "common/filesystem.h"
 #include "common/memory_buffer.h"
 #include "common/utf-8.h"
+#include "diagnostics/consumer.h"
 #include "driver_subcommand.h"
 #include "source/source_buffer.h"
 #include <istream>

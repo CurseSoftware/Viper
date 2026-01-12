@@ -1,21 +1,23 @@
 #ifndef VIPER_COMMON_TESTS_MEMORY_BUFFER_TESTS_H
 #define VIPER_COMMON_TESTS_MEMORY_BUFFER_TESTS_H
+#include <optional>
+#include <string>
 
 namespace viper
 {
-    auto bufferRawAllocateTest() -> bool;
+    auto bufferRawAllocateTest() -> std::optional<std::string>;
 
-    auto bufferRawAllocateTestLarge() -> bool;
+    auto bufferRawAllocateTestLarge() -> std::optional<std::string>;
     
-    auto bufferVecAllocateTestLarge() -> bool;
+    auto bufferVecAllocateTestLarge() -> std::optional<std::string>;
     
-    auto bufferVecAllocateTest() -> bool;
+    auto bufferVecAllocateTest() -> std::optional<std::string>;
     
-    auto bufferSpanTest() -> bool;
+    auto bufferSpanTest() -> std::optional<std::string>;
 
-    auto bufferStringViewTest() -> bool;
+    auto bufferStringViewTest() -> std::optional<std::string>;
 
-    auto bufferLargeStringViewTest() -> bool;
+    auto bufferLargeStringViewTest() -> std::optional<std::string>;
 } // namespace viper
 
 #endif // VIPER_COMMON_TESTS_MEMORY_BUFFER_TESTS_H

@@ -1,10 +1,11 @@
 #include "tests/memory_buffer_tests.h"
+#include "format.h"
 #include "memory_buffer.h"
 #include <cstddef>
 
 namespace viper
 {
-    auto bufferRawAllocateTest() -> bool
+    auto bufferRawAllocateTest() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100;
         char mem[ExpectedAllocationSize] = {};
@@ -16,13 +17,18 @@ namespace viper
 
         if (!buffer)
         {
-            return false;
+            return "Buffer was not created";
         }
 
-        return buffer.value()->size() == ExpectedAllocationSize;
+        if (buffer.value()->size() != ExpectedAllocationSize)
+        {
+            return format::format("Buffer size {} != expected size {}", buffer.value()->size(), ExpectedAllocationSize);
+        }
+
+        return {};
     }
 
-    auto bufferRawAllocateTestLarge() -> bool
+    auto bufferRawAllocateTestLarge() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100000000;
         char* mem = new char[ExpectedAllocationSize];
@@ -34,13 +40,18 @@ namespace viper
 
         if (!buffer)
         {
-            return false;
+            return "Buffer was not created";
         }
 
-        return buffer.value()->size() == ExpectedAllocationSize;
+        if (buffer.value()->size() != ExpectedAllocationSize)
+        {
+            return format::format("Buffer size {} != expected size {}", buffer.value()->size(), ExpectedAllocationSize);
+        }
+
+        return {};
     }
     
-    auto bufferVecAllocateTestLarge() -> bool
+    auto bufferVecAllocateTestLarge() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100000000;
         std::vector<unsigned char> data(ExpectedAllocationSize);
@@ -49,13 +60,18 @@ namespace viper
 
         if (!buffer)
         {
-            return false;
+            return "Buffer was not created";
         }
 
-        return buffer.value()->size() == ExpectedAllocationSize;
+        if (buffer.value()->size() != ExpectedAllocationSize)
+        {
+            return format::format("Buffer size {} != expected size {}", buffer.value()->size(), ExpectedAllocationSize);
+        }
+
+        return {};
     }
     
-    auto bufferVecAllocateTest() -> bool
+    auto bufferVecAllocateTest() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100;
         std::vector<unsigned char> data(ExpectedAllocationSize);
@@ -64,13 +80,18 @@ namespace viper
 
         if (!buffer)
         {
-            return false;
+            return "Buffer was not created";
         }
 
-        return buffer.value()->size() == ExpectedAllocationSize;
+        if (buffer.value()->size() != ExpectedAllocationSize)
+        {
+            return format::format("Buffer size {} != expected size {}", buffer.value()->size(), ExpectedAllocationSize);
+        }
+
+        return {};
     }
     
-    auto bufferSpanTest() -> bool
+    auto bufferSpanTest() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100;
         std::vector<unsigned char> data(ExpectedAllocationSize);
@@ -79,15 +100,20 @@ namespace viper
 
         if (!buffer)
         {
-            return false;
+            return "Buffer was not created";
         }
 
         std::span<unsigned char> span = *buffer.value();
 
-        return span.size() == ExpectedAllocationSize;
+        if (span.size() != ExpectedAllocationSize)
+        {
+            return format::format("Span size {} != expected size {}", span.size(), ExpectedAllocationSize);
+        }
+
+        return {};
     }
 
-    auto bufferStringViewTest() -> bool
+    auto bufferStringViewTest() -> std::optional<std::string>
     {
         std::string test_string = "This is my test string";
 
@@ -98,27 +124,27 @@ namespace viper
 
         if (!buffer)
         {
-            return false;
+            return "Buffer was not created";
         }
 
         std::string_view test_string_view = buffer.value()->getBuffer();
         if (test_string_view.length() != test_string.length())
         {
-            return false;
+            return format::format("String view length {} != string length {}", test_string_view.length(), test_string.length());
         }
 
         for (std::size_t i = 0; i < test_string_view.length(); i++)
         {
             if (test_string_view[i] != test_string[i])
             {
-                return false;
+                return format::format("string_view[{}] = {} when expected is {}", i, test_string_view[i], test_string[i]);
             }
         }
 
-        return true;
+        return {};
     }
 
-    auto bufferLargeStringViewTest() -> bool
+    auto bufferLargeStringViewTest() -> std::optional<std::string>
     {
         std::string test_string;
 
@@ -134,23 +160,23 @@ namespace viper
 
         if (!buffer)
         {
-            return false;
+            return "Buffer was not created";
         }
 
         std::string_view test_string_view = buffer.value()->getBuffer();
         if (test_string_view.length() != test_string.length())
         {
-            return false;
+            return format::format("String view length {} != string length {}", test_string_view.length(), test_string.length());
         }
 
         for (std::size_t i = 0; i < test_string_view.length(); i++)
         {
             if (test_string_view[i] != test_string[i])
             {
-                return false;
+                return format::format("string_view[{}] = {} when expected is {}", i, test_string_view[i], test_string[i]);
             }
         }
 
-        return true;
+        return {};
     }
 } // namespace viper

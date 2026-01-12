@@ -4,6 +4,7 @@
 #include "test.h"
 #include <chrono>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -14,6 +15,7 @@ namespace viper::toolchain::testing
     {
         bool passed;
         std::chrono::milliseconds total_time;
+        std::optional<std::string> message;
     };
     
     struct AggregateRunResult

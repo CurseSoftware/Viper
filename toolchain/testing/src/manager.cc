@@ -24,13 +24,14 @@ namespace viper::toolchain::testing
         {
             auto test_start = std::chrono::high_resolution_clock::now();
             _out << format::format("[{}/{}] Running \"{}\": ", ++tests_run, total_tests, name);
-            bool result = test_function();
+            auto result = test_function();
             auto test_end = std::chrono::high_resolution_clock::now();
 
             auto run_time = std::chrono::duration_cast<std::chrono::milliseconds>(test_end - test_start);
             results.test_results[name] = {
-                .passed = result,
-                .total_time = run_time
+                .passed = !result.has_value(),
+                .total_time = run_time,
+                .message = result
             };
 
             if (result)
@@ -49,6 +50,14 @@ namespace viper::toolchain::testing
         auto total_duration = std::chrono::duration_cast<std::chrono::milliseconds>(total_end - total_start);
 
         _out << format::format("Ran {} tests in {} milliseconds. {} Passed. {} Failed.\n", total_tests, total_duration.count(), total_passed, total_failed);
+
+        for (const auto& [test_name, test_result] : results.test_results)
+        {
+            if (!test_result.passed)
+            {
+                _out << format::format("Test \"{}\" failed with message: {}\n", test_name, test_result.message.value());
+            }
+        }
         
         return results;
     }

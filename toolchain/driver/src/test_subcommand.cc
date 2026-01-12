@@ -1,4 +1,5 @@
 #include "test_subcommand.h"
+#include "common/tests/filesystem_tests.h"
 #include "common/tests/memory_buffer_tests.h"
 #include "lex/tests/lex_tests.h"
 #include <cstddef>
@@ -15,11 +16,11 @@ namespace viper::toolchain::driver
         // TODO: support sending this to file
 
         createMemoryBufferTests();
+        createFilesystemTests();
         createLexTests();
 
         _manager.runAll();
     }
-
 
     auto TestCommand::createMemoryBufferTests() noexcept -> void
     {
@@ -30,6 +31,13 @@ namespace viper::toolchain::driver
         _manager.registerTest("Memory buffer vector allocation", bufferVecAllocateTest);
         _manager.registerTest("Memory buffer large vector allocation", bufferVecAllocateTestLarge);
         _manager.registerTest("Memory buffer span cast", bufferSpanTest);
+    }
+    
+    auto TestCommand::createFilesystemTests() noexcept -> void
+    {
+        _manager.registerTest("Filesystem file from path", fileFromPath);
+        _manager.registerTest("Filesystem file to string", fileToString);
+        _manager.registerTest("Filesystem file to vector", fileToByteVector);
     }
     
     auto TestCommand::createLexTests() noexcept -> void

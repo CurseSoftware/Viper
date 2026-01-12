@@ -59,6 +59,7 @@ namespace viper::toolchain::driver
         private:
             auto createLexTests() noexcept -> void;
             auto createMemoryBufferTests() noexcept -> void;
+            auto createFilesystemTests() noexcept -> void;
         
         // Member fields
         private:

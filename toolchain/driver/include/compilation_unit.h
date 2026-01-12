@@ -34,6 +34,9 @@ namespace viper::toolchain::driver
             CompilationUnit(CompilationUnit&&) = default;
             auto operator=(CompilationUnit&&) -> CompilationUnit& = default;
 
+        public:
+            [[nodiscard]] auto tokens() const noexcept -> const lex::TokenizedBuffer& { return _tokens.value(); }
+
         // Private methods
         private:
             auto getSourceBuffer(std::string_view filename) const noexcept -> std::optional<source::SourceBuffer>;

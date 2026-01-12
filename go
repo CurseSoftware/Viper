@@ -5,6 +5,7 @@ import subprocess
 
 valid_build_targets = [
     "toolchain"
+    , "testing"
 ]
 
 

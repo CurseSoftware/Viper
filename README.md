@@ -44,15 +44,18 @@ Then rather than using the `go` utility script you can just
 ```
 
 ### Commands
-Currently, the lexer is being developed, so this is the only available command.
-
-You can run
+To run the lexer:
 ```bash
 ./viper lex -f input.viper
 ```
 or
 ```bash
 ./viper lex --file input.viper
+```
+
+To run the tests
+```bash
+./viper test
 ```
 
 ## About the toolchain

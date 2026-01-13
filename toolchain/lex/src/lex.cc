@@ -29,6 +29,8 @@ namespace viper::toolchain::lex
         .addKeyword(TokenSpecInfo("return", TokenKind::Return))
         .addKeyword(TokenSpecInfo("define", TokenKind::Define))
         .addKeyword(TokenSpecInfo("mut", TokenKind::Mut))
+        .addKeyword(TokenSpecInfo("ref", TokenKind::Ref))
+        .addKeyword(TokenSpecInfo("struct", TokenKind::Struct))
         .identifierCanStartWith('_')
         .identifierCanStartWithLower()
         .identifierCanStartWithUpper()

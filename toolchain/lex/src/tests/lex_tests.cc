@@ -52,10 +52,20 @@ namespace viper::toolchain::lex
     {
         const std::string path { "tests/lex/symbols.viper" };
         const std::vector<lex::TokenKind> expected = {
-            TokenKind::Plus, TokenKind::Plus,
-            TokenKind::Equal, TokenKind::PlusEqual, TokenKind::EqualEqual, TokenKind::Equal,
-            TokenKind::MinusEqual, TokenKind::ForwardSlash, TokenKind::ForwardSlashEqual, TokenKind::MinusGreater,
-            TokenKind::SemiColon, TokenKind::ColonColon, TokenKind::Colon, TokenKind::ColonColon,
+            TokenKind::Plus,
+            TokenKind::Plus,
+            TokenKind::Equal,
+            TokenKind::PlusEqual,
+            TokenKind::EqualEqual,
+            TokenKind::Equal,
+            TokenKind::MinusEqual,
+            TokenKind::ForwardSlash,
+            TokenKind::ForwardSlashEqual,
+            TokenKind::MinusGreater,
+            TokenKind::SemiColon,
+            TokenKind::ColonColon,
+            TokenKind::Colon,
+            TokenKind::ColonColon,
         };
         
         auto null_out = NullOStream();

@@ -3,13 +3,24 @@
 
 #include "consumer.h"
 #include "diagnostic.h"
+#include "location.h"
 #include <memory>
 
 namespace viper::toolchain::diagnostics
 {
+    // This is constructed by the `Emitter<T>::convertLocation(T t)` method defined by each
+    // derived emitter
+    // TODO: This will likely contain other information for things like sorting and potentially
+    // other thing. That is why we don't just use a `Location` though that is all we have for now
+    struct ConvertedLocation
+    {
+        Location location;
+    };
+    
     template <typename LocationType>
     class Emitter
     {
+        // Builder class
         public:
             class [[nodiscard]] Builder
             {
@@ -38,15 +49,23 @@ namespace viper::toolchain::diagnostics
                     }
 
                     template <typename ...Args>
-                    auto addMessage(const DiagnosticBase<Args...>& diagnostic_base) -> void
+                    auto addMessage(LocationType location, const DiagnosticBase<Args...>& diagnostic_base) -> void
                     {
                         if (!_emitter)
                         {
                             return;
                         }
 
+                        Message message = {
+                            .level = Level::Note,
+                            .location = _emitter->convertLocation(location).location,
+                            .message = diagnostic_base.formatted()
+                        };
+
+                        _diagnostic.addMessage(message);
+
                         // _diagnostic.messages().emplace_back({.level = Level::Note, .message = diagnostic_base.formatted() });
-                        _diagnostic.emplaceMessage(Level::Note, diagnostic_base.formatted());
+                        // _diagnostic.emplaceMessage(Level::Note, _emitter->convertLocation(location), diagnostic_base.formatted());
                     }
 
                     template <typename ...Args>
@@ -58,11 +77,11 @@ namespace viper::toolchain::diagnostics
 
                 protected:
                     template <typename ...Args>
-                    explicit Builder(Emitter* emitter, const DiagnosticBase<Args...> diagnostic_base)
+                    explicit Builder(Emitter* emitter, LocationType location, const DiagnosticBase<Args...> diagnostic_base)
                         : _emitter{ emitter }
                         , _diagnostic(diagnostic_base.level())
                     {
-                        addMessage(diagnostic_base);
+                        addMessage(location, diagnostic_base);
                     }
 
                 private:
@@ -72,6 +91,7 @@ namespace viper::toolchain::diagnostics
                     Diagnostic _diagnostic;
             };
 
+        // Public API
         public:
             template <typename... Args>
             auto build(const DiagnosticBase<Args...> diagnostic_base) noexcept -> Builder
@@ -80,20 +100,27 @@ namespace viper::toolchain::diagnostics
             }
 
             template <typename... Args>
-            auto emit(const DiagnosticBase<Args...> diagnostic_base) noexcept -> void
+            auto emit(LocationType location, const DiagnosticBase<Args...>& diagnostic_base) noexcept -> void
             {
-                auto builder = Builder(this, diagnostic_base);
+                auto builder = Builder(this, location, diagnostic_base);
                 builder.emit();
             }
 
+            // Convert the LocationType to a specific location
+            virtual auto convertLocation(LocationType location) const noexcept -> ConvertedLocation = 0;
 
+
+        // Special members
         public:
             [[nodiscard]] explicit Emitter(std::weak_ptr<Consumer> consumer)
                 : _consumer{ std::move(consumer) }
             {}
+
+            virtual ~Emitter() = default;
         
         private:
             friend class Builder;
+            friend class NoLocationEmitter;
 
         private:
             std::weak_ptr<Consumer> _consumer;

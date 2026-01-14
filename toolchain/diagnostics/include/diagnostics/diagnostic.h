@@ -2,6 +2,7 @@
 #define VIPER_TOOLCHAIN_DIAGNOSTICS_DIAGNOSTIC_H
 
 #include "common/format.h"
+#include "diagnostics/location.h"
 #include <__format/format_functions.h>
 #include <concepts>
 #include <format>
@@ -20,6 +21,7 @@ namespace viper::toolchain::diagnostics
     struct Message
     {
         Level level {};
+        Location location;
         std::string message {};
     };
 
@@ -42,6 +44,11 @@ namespace viper::toolchain::diagnostics
             auto emplaceMessage(Args&&... args) -> void
             {
                 _messages.emplace_back(args...);
+            }
+
+            auto addMessage(Message message) -> void
+            {
+                _messages.push_back(message);
             }
         
         private:

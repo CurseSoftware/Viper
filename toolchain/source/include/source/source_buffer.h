@@ -36,6 +36,8 @@ namespace viper::toolchain::source
             auto printAsAscii() const noexcept -> bool;
 
             auto getBuffer() const noexcept -> std::string_view { return _memory->getBuffer(); }
+
+            auto filepath() const noexcept -> const std::string& { return _file_path; }
             
         // Constructor
         private:
@@ -45,7 +47,7 @@ namespace viper::toolchain::source
             {}
 
         private:
-            fs::FilePath _file_path {};
+            std::string _file_path {};
 
             std::unique_ptr<memory::MemoryBuffer> _memory { nullptr };
     };

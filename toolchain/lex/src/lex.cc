@@ -136,10 +136,10 @@ namespace viper::toolchain::lex
 
         std::string_view error_text = text.substr(position, i-position);
 
-        diagnostics::make_diagnostic<diagnostics::InvalidCharactersDiagnostic>(diagnostics::Level::Error, std::string(error_text));
+        auto diag = diagnostics::make_diagnostic<diagnostics::InvalidCharactersDiagnostic>(diagnostics::Level::Error, std::string(error_text));
+        _source_emitter.emit(error_text.begin(), diag);
 
         position += error_text.size();
-        // std::cout << "Error: " << error_text << '\n';
 
         return addLexedToken(TokenKind::Error);
     }

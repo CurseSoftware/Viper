@@ -4,6 +4,7 @@
 #include "diagnostics/emitter.h"
 #include "diagnostics/file_emitter.h"
 #include "diagnostics/kinds.h"
+#include "diagnostics/no_location_emitter.h"
 #include <common/filesystem.h>
 #include <iostream>
 #include <utility>
@@ -12,13 +13,13 @@ namespace viper::toolchain::source
 {
     auto SourceBuffer::fromFilePath(const fs::FilePath &path, std::weak_ptr<diagnostics::Consumer> consumer) noexcept -> std::optional<SourceBuffer>
     {
-        auto emitter = diagnostics::FileEmitter{ consumer };
+        auto emitter = diagnostics::NoLocationEmitter{ consumer };
         auto file_opt = fs::File::fromPath(path);
         
         if (!file_opt)
         {
             auto file_not_found = diagnostics::make_diagnostic<diagnostics::FileNotFoundDiagnostic>(diagnostics::Level::Error, std::string(path));
-            emitter.emit(file_not_found);
+            // emitter.emit(file_not_found);
             
             return std::nullopt;
         }

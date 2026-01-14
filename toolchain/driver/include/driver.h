@@ -2,6 +2,7 @@
 #define VIPER_TOOLCHAIN_DRIVER_DRIVER_H
 
 #include "diagnostics/emitter.h"
+#include "diagnostics/no_location_emitter.h"
 #include "driver_subcommand.h"
 #include <common/command_line.h>
 #include <memory>
@@ -53,7 +54,7 @@ namespace viper::toolchain::driver
 
             std::shared_ptr<diagnostics::Consumer> _consumer;
             
-            diagnostics::Emitter<const char*> _emitter;
+            diagnostics::NoLocationEmitter _emitter;
     };
 
 } // namespace viper::toolchain::driver

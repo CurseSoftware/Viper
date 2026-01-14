@@ -39,6 +39,10 @@ namespace viper::toolchain::diagnostics
                             return;
                         }
 
+                        if (_emitter->_consumer.expired())
+                        {
+                            // std::cout << "no consumer\n";
+                        }
                         _emitter->_consumer.lock()->handleDiagnostic(std::move(_diagnostic));
                     }
 
@@ -104,6 +108,7 @@ namespace viper::toolchain::diagnostics
             {
                 auto builder = Builder(this, location, diagnostic_base);
                 builder.emit();
+                // std::cout << "here4\n";
             }
 
             // Convert the LocationType to a specific location

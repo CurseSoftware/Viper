@@ -32,25 +32,25 @@ namespace viper::toolchain::lex
                
                 // Find the beginning of the line for this location
                 int32_t line_begin_offset { offset };
-                while (!isVerticalWhitespace(text[offset]))
+                while (!isVerticalWhitespace(text[offset]) && line_begin_offset > 0)
                 {
                     line_begin_offset--;
                 }
 
                 // Find the end of the line
                 int32_t line_end_offset { offset };
-                while (!isVerticalWhitespace(text[offset]))
+                while (!isVerticalWhitespace(text[line_end_offset]) && !isEof(text[line_end_offset]))
                 {
-                    line_end_offset--;
+                    line_end_offset++;
                 }
+
 
                 std::string_view file_name = _source.filepath();
                 int32_t column_number { offset - line_begin_offset };
                 int32_t line_number { 0 };
                 int32_t length = 1;
                 std::string_view line = text.substr(line_begin_offset, line_end_offset);
-
-                return diagnostics::ConvertedLocation {
+return diagnostics::ConvertedLocation {
                     .location = diagnostics::Location(
                         file_name,
                         line,
@@ -92,9 +92,9 @@ namespace viper::toolchain::lex
         public:
             [[nodiscard]] explicit Lexer(source::SourceBuffer& source, std::weak_ptr<diagnostics::Consumer> diagnostics_consumer, const TokenSpec& token_spec)
                 : _source{ source }
-                , _diagnostics_consumer{ std::move(diagnostics_consumer) }
+                , _diagnostics_consumer{ std::make_shared<diagnostics::ErrorTrackingConsumer>(diagnostics_consumer) }
                 , _token_spec{ token_spec }
-                , _source_emitter{ diagnostics_consumer, source }
+                , _source_emitter{ _diagnostics_consumer, source }
             {}
 
         // Methods
@@ -125,7 +125,7 @@ namespace viper::toolchain::lex
         
         private:
             source::SourceBuffer& _source;
-            std::weak_ptr<diagnostics::Consumer> _diagnostics_consumer;
+            std::shared_ptr<diagnostics::ErrorTrackingConsumer> _diagnostics_consumer;
             const TokenSpec& _token_spec;
             TokenizedBuffer _buffer;
             SourcePointerEmitter _source_emitter;

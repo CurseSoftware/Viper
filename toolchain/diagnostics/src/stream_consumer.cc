@@ -9,10 +9,18 @@ namespace viper::toolchain::diagnostics
     {
         for (const auto& message : diagnostic.messages())
         {
-            _stream << format::format("{}: ", levelToString(diagnostic.level()));
-            _stream << message.message;
 
-            _stream << '\n';
+            _stream << format::format("{}: ", levelToString(diagnostic.level()));
+            _stream << message.message << '\n';
+            if (!message.location.file_name().empty())
+            {
+                _stream << "In file: " << message.location.file_name() << " at position " << message.location.column_number() << '\n';
+            }
+
+            if (!message.location.line().empty())
+            {
+                _stream << message.location.line() << '\n';
+            }
         }
     }
 } // namespace viper::toolchain::diagnostics

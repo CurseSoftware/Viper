@@ -132,9 +132,11 @@ namespace viper::toolchain::lex
             && !isHorizontalWhitespace(text[i])
             && !isVerticalWhitespace(text[i])
             && !symbolStartsWith(text[i])
+            && !isEof(text[i])
         );
 
         std::string_view error_text = text.substr(position, i-position);
+
 
         auto diag = diagnostics::make_diagnostic<diagnostics::InvalidCharactersDiagnostic>(diagnostics::Level::Error, std::string(error_text));
         _source_emitter.emit(error_text.begin(), diag);
@@ -293,6 +295,8 @@ VIPER_DISPATCH_LEX_NON_TOKEN(lexVerticalWhitespace)
 
         std::size_t position { 0 };
         dispatchNext(*this, source_text, position);
+
+        _buffer.setHasErrors(_diagnostics_consumer->seen_error());
 
         return std::move(_buffer);
     }

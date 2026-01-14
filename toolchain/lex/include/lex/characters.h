@@ -19,6 +19,8 @@ namespace viper::toolchain::lex
         return static_cast<unsigned char>(c) <= 127;
     }
 
+    inline auto isEof(char c) -> bool { return c == '\0'; }
+
     inline auto isAscii(std::string_view s)
     {
         for (const auto c : s)

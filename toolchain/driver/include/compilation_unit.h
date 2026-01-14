@@ -24,7 +24,12 @@ namespace viper::toolchain::driver
                     , std::weak_ptr<diagnostics::Consumer> diagnostics_consumer
             ) : _input_file_name{ input_file_name }
               , _diagnostics_consumer{ std::move(diagnostics_consumer) }
-            {}
+            {
+                if (_diagnostics_consumer.expired())
+                {
+                    std::cout << "expired\n";
+                }
+            }
 
             // No copy
             CompilationUnit(const CompilationUnit&) = delete;

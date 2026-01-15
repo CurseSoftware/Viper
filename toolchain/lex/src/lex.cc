@@ -53,6 +53,8 @@ namespace viper::toolchain::lex
         .addSymbol(TokenSpecInfo("/", TokenKind::ForwardSlash))
         .addSymbol(TokenSpecInfo("::", TokenKind::ColonColon))
         .addSymbol(TokenSpecInfo(":", TokenKind::Colon))
+        .addSymbol(TokenSpecInfo(",", TokenKind::Comma))
+        .addSymbol(TokenSpecInfo(".", TokenKind::Period))
         .addSymbol(TokenSpecInfo(";", TokenKind::SemiColon))
         .addSymbol(TokenSpecInfo("[", TokenKind::LeftBracket))
         .addSymbol(TokenSpecInfo("]", TokenKind::RightBracket))

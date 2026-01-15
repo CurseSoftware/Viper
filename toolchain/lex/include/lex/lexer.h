@@ -3,6 +3,7 @@
 
 #include "base/shared_values.h"
 #include "characters.h"
+#include "common/format.h"
 #include "diagnostics/consumer.h"
 #include "diagnostics/emitter.h"
 #include "source/source_buffer.h"
@@ -33,24 +34,23 @@ namespace viper::toolchain::lex
                
                 // Find the beginning of the line for this location
                 int32_t line_begin_offset { offset };
-                while (!isVerticalWhitespace(text[offset]) && line_begin_offset > 0)
+                while (!isVerticalWhitespace(text[line_begin_offset]) && line_begin_offset > 0)
                 {
                     line_begin_offset--;
                 }
 
                 // Find the end of the line
                 int32_t line_end_offset { offset };
-                while (!isVerticalWhitespace(text[line_end_offset]) && !isEof(text[line_end_offset]))
+                while (!isVerticalWhitespace(text[line_end_offset]) && line_end_offset < text.size())
                 {
                     line_end_offset++;
                 }
-
 
                 std::string_view file_name = _source.filepath();
                 int32_t column_number { offset - line_begin_offset };
                 int32_t line_number { 0 };
                 int32_t length = 1;
-                std::string_view line = text.substr(line_begin_offset, line_end_offset);
+                std::string_view line = text.substr(line_begin_offset, line_end_offset - line_begin_offset);
                 return diagnostics::ConvertedLocation {
                     .location = diagnostics::Location(
                         file_name,

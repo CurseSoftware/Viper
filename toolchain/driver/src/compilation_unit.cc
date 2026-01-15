@@ -19,7 +19,7 @@ namespace viper::toolchain::driver
 
         // TODO: profile memory usage
 
-        _tokens = lex::lex(_source.value(), _diagnostics_consumer);
+        _tokens = lex::lex(_source.value(), _diagnostics_consumer, _shared_values);
     }
 
     auto CompilationUnit::parse() noexcept -> void

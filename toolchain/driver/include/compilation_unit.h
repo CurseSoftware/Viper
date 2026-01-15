@@ -1,6 +1,7 @@
 #ifndef VIPER_TOOLCHAIN_DRIVER_COMPILATION_UNIT_H
 #define VIPER_TOOLCHAIN_DRIVER_COMPILATION_UNIT_H
 
+#include "base/shared_values.h"
 #include "diagnostics/consumer.h"
 #include "lex/tokenized_buffer.h"
 #include "source/source_buffer.h"
@@ -68,6 +69,8 @@ namespace viper::toolchain::driver
 
             // Tokens for this compilation unit
             std::optional<lex::TokenizedBuffer> _tokens { std::nullopt };
+
+            base::SharedValues _shared_values {};
 
             // TODO: add compiler options
 

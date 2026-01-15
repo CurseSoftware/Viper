@@ -1,4 +1,5 @@
 #include "lex.h"
+#include "base/shared_values.h"
 #include "characters.h"
 #include "diagnostics/consumer.h"
 #include "diagnostics/diagnostic.h"
@@ -196,7 +197,8 @@ namespace viper::toolchain::lex
             return addLexedToken(keyword_kind.value(), byte_offset);
         }
 
-        return addLexedToken(TokenKind::Id, byte_offset);
+        auto id = _shared_values.identifiers().insert(id_text);
+        return addLexedTokenWithPayload(TokenKind::Id, byte_offset, id.index);
     }
 
     static auto dispatchNext(Lexer& lexer, std::string_view text, std::size_t position) -> void;
@@ -309,9 +311,9 @@ VIPER_DISPATCH_LEX_NON_TOKEN(lexVerticalWhitespace)
         return std::move(_buffer);
     }
 
-    auto lex(source::SourceBuffer& source_buffer, std::weak_ptr<diagnostics::Consumer> consumer) -> TokenizedBuffer
+    auto lex(source::SourceBuffer& source_buffer, std::weak_ptr<diagnostics::Consumer> consumer, base::SharedValues& shared_values) -> TokenizedBuffer
     {
-        auto tokens = Lexer(source_buffer, consumer, Spec).lex();
+        auto tokens = Lexer(source_buffer, consumer, shared_values, Spec).lex();
         return std::move(tokens);
     }
 } // namespace viper::toolchain::lex

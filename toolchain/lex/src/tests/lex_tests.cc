@@ -1,4 +1,5 @@
 #include "tests/lex_tests.h"
+#include "base/shared_values.h"
 #include "common/format.h"
 #include "common/streams.h"
 #include "diagnostics/consumer.h"
@@ -12,6 +13,7 @@ namespace viper::toolchain::lex
 {
     auto lexKeywordTest() -> std::optional<std::string>
     {
+        base::SharedValues mock_shared_values {};
         const std::string path { "tests/lex/keywords.viper" };
         const std::vector<lex::TokenKind> expected = {
             TokenKind::Define,
@@ -30,7 +32,7 @@ namespace viper::toolchain::lex
             return format::format("Source buffer failed to create from file path \"{}\"", path);
         }
         
-        auto tokens = lex(source.value(), mock_consumer).tokens();
+        auto tokens = lex(source.value(), mock_consumer, mock_shared_values).tokens();
 
         if (tokens.size() != expected.size())
         {
@@ -52,6 +54,7 @@ namespace viper::toolchain::lex
     
     auto lexSymbolTest() -> std::optional<std::string>
     {
+        base::SharedValues mock_shared_values {};
         const std::string path { "tests/lex/symbols.viper" };
         const std::vector<lex::TokenKind> expected = {
             TokenKind::Plus,
@@ -81,7 +84,7 @@ namespace viper::toolchain::lex
             return format::format("Source buffer failed to create from file path \"{}\"", path);
         }
         
-        auto tokens = lex(source.value(), mock_consumer).tokens();
+        auto tokens = lex(source.value(), mock_consumer, mock_shared_values).tokens();
 
         if (tokens.size() != expected.size())
         {

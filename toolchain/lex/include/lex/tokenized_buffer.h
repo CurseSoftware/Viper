@@ -4,7 +4,7 @@
 #include "common/containers/store.h"
 #include "lex/token_info.h"
 #include <cstddef>
-#include <vector>
+
 namespace viper::toolchain::lex
 {
     struct TokenIndex : public containers::Index<TokenIndex>
@@ -16,23 +16,26 @@ namespace viper::toolchain::lex
     class [[nodiscard]] TokenizedBuffer
     {
         public:
-
-        public:
+            // Print all the tokens
             auto dumpTokens() const noexcept -> void;
 
+            // Get the number of tokens stored
             auto size() const noexcept -> std::size_t { return _token_infos.size(); }
 
-            auto tokens() const noexcept -> const containers::ValueStore<TokenIndex, TokenInfo>& { return _token_infos; }
+            // Getter for the actual token storage
+            auto tokens() const noexcept -> const containers::Store<TokenIndex, TokenInfo>& { return _token_infos; }
 
             // Add a new token into this buffer
             auto addToken(TokenInfo info) noexcept -> TokenIndex;
 
+            // See whether this buffer contains errors
             auto has_errors() const noexcept -> bool { return _has_errors; }
 
+            // Set whether this has errors or not
             auto setHasErrors(bool has_errors) noexcept -> void { _has_errors = has_errors; }
 
         private:
-            containers::ValueStore<TokenIndex, TokenInfo> _token_infos;
+            containers::Store<TokenIndex, TokenInfo> _token_infos;
             // std::vector<TokenInfo> _token_infos;
             bool _has_errors { false };
     };

@@ -55,10 +55,10 @@ namespace viper::containers
     };
 
     template<typename IdType, typename ValueType>
-    class [[nodiscard]] ValueStore
+    class [[nodiscard]] Store
     {
         public:
-            explicit ValueStore() noexcept = default;
+            explicit Store() noexcept = default;
 
             using Value = std::remove_cvref_t<ValueType>;
             using ValueRef = std::conditional_t<std::same_as<std::string_view, ValueType>, std::string_view, Value&>;
@@ -80,6 +80,8 @@ namespace viper::containers
                 {
                     return _values[id.index];
                 }
+
+                return std::nullopt;
             }
 
             auto get(IdType id) const -> std::optional<ConstRef>
@@ -88,6 +90,8 @@ namespace viper::containers
                 {
                     return _values[id.index];
                 }
+
+                return std::nullopt;
             }
 
             auto size() const noexcept -> std::size_t { return _values.size(); }
@@ -109,7 +113,6 @@ namespace viper::containers
         private:
             StorageT _values {};
     };
-
 } // namespace viper::containers
 
 #endif // VIPER_COMMON_CONTAINERS_STORE_H

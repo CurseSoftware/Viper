@@ -1,6 +1,7 @@
 #ifndef VIPER_TOOLCHAIN_LEX_LEXER_H
 #define VIPER_TOOLCHAIN_LEX_LEXER_H
 
+#include "base/shared_values.h"
 #include "characters.h"
 #include "diagnostics/consumer.h"
 #include "diagnostics/emitter.h"
@@ -50,7 +51,7 @@ namespace viper::toolchain::lex
                 int32_t line_number { 0 };
                 int32_t length = 1;
                 std::string_view line = text.substr(line_begin_offset, line_end_offset);
-return diagnostics::ConvertedLocation {
+                return diagnostics::ConvertedLocation {
                     .location = diagnostics::Location(
                         file_name,
                         line,
@@ -90,11 +91,16 @@ return diagnostics::ConvertedLocation {
 
         // Special Members
         public:
-            [[nodiscard]] explicit Lexer(source::SourceBuffer& source, std::weak_ptr<diagnostics::Consumer> diagnostics_consumer, const TokenSpec& token_spec)
-                : _source{ source }
+            [[nodiscard]] explicit Lexer(
+                source::SourceBuffer& source
+                , std::weak_ptr<diagnostics::Consumer> diagnostics_consumer
+                , base::SharedValues& shared_values
+                , const TokenSpec& token_spec
+            )   : _source{ source }
                 , _diagnostics_consumer{ std::make_shared<diagnostics::ErrorTrackingConsumer>(diagnostics_consumer) }
                 , _token_spec{ token_spec }
                 , _source_emitter{ _diagnostics_consumer, source }
+                , _shared_values{ shared_values }
             {}
 
         // Methods
@@ -131,6 +137,7 @@ return diagnostics::ConvertedLocation {
             const TokenSpec& _token_spec;
             TokenizedBuffer _buffer;
             SourcePointerEmitter _source_emitter;
+            base::SharedValues& _shared_values;
     };
 } // namespace viper::toolchain::lex
 

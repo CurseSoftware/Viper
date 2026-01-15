@@ -12,10 +12,13 @@ namespace viper::toolchain::driver
 {
     class CompilationUnit
     {
-        // Methods
+        // API
         public:
             // Tokenize the compilation unit
             auto tokenize() noexcept -> void;
+
+            // Parse the compilation unit
+            auto parse() noexcept -> void;
 
         // Special Members
         public:
@@ -39,6 +42,7 @@ namespace viper::toolchain::driver
             CompilationUnit(CompilationUnit&&) = default;
             auto operator=(CompilationUnit&&) -> CompilationUnit& = default;
 
+        // Getters
         public:
             [[nodiscard]] auto tokens() const noexcept -> const lex::TokenizedBuffer& { return _tokens.value(); }
 

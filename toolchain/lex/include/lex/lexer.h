@@ -121,7 +121,9 @@ return diagnostics::ConvertedLocation {
 
             [[nodiscard]] auto skipVerticalWhitespace(std::string_view text, std::size_t i) -> std::size_t;
 
-            auto addLexedToken(TokenKind kind) noexcept -> TokenIndex;
+            [[nodiscard]] auto addLexedToken(TokenKind kind, int32_t byte_offset) noexcept -> TokenIndex;
+            
+            [[nodiscard]] auto addLexedTokenWithPayload(TokenKind kind, int32_t byte_offset, int32_t payload) noexcept -> TokenIndex;
         
         private:
             source::SourceBuffer& _source;

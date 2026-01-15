@@ -107,6 +107,7 @@ namespace viper::toolchain::lex
 
     auto Lexer::lexNumericLiteral(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
+        int32_t byte_offset { static_cast<int32_t>(position) };
         if (!isNumeric(text[position]))
         {
             return Result::invalid();
@@ -118,11 +119,12 @@ namespace viper::toolchain::lex
         }
         // std::cout << "Numeric literal: " << text.substr(position, i-position) << '\n';
         position = i;
-        return addLexedToken(TokenKind::NumericLiteral);
+        return addLexedToken(TokenKind::NumericLiteral, byte_offset);
     }
 
     auto Lexer::lexError(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
+        int32_t byte_offset { static_cast<int32_t>(position) };
         std::size_t i = position;
         do {
             i++;
@@ -143,11 +145,12 @@ namespace viper::toolchain::lex
 
         position += error_text.size();
 
-        return addLexedToken(TokenKind::Error);
+        return addLexedToken(TokenKind::Error, byte_offset);
     }
 
     auto Lexer::lexSymbol(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
+        int32_t byte_offset { static_cast<int32_t>(position) };
         // std::cout << "lexing symbol\n";
         for (const auto& symbol : _token_spec.symbols())
         {
@@ -156,51 +159,44 @@ namespace viper::toolchain::lex
                 if (text.substr(position).starts_with(symbol->pattern()))
                 {
                     position += strlen(symbol->pattern());
-                    return addLexedToken(symbol->kind());
+                    return addLexedToken(symbol->kind(), byte_offset);
                 }
             }
         }
 
         // TODO: this will spin forever if not changed
-        return addLexedToken(TokenKind::Error);
+        return addLexedToken(TokenKind::Error, byte_offset);
     }
 
     auto Lexer::lexKeywordOrIdentifier(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
-        // std::cout << "Lexing keyword\n";
+        int32_t byte_offset { static_cast<int32_t>(position) };
+        
         if (static_cast<unsigned char>(text[position]) > 0x7F)
         {
             // TODO: return lex error for not supporting utf8
-            // std::cout << "INVALID\n";
             return Result::invalid();
         }
 
         if (text.substr(position).empty())
         {
-            // std::cout << "STRING VIEW EMPTY\n";
             std::terminate();
         }
-
-        int32_t byte_offset = position;
 
         std::string_view id_text = scanIdentifier(text.substr(position), 0);
         if (id_text.empty())
         {
-            // std::cout << "ID EMPTY\n";
             std::terminate();
         }
-        // std::cout << "HERE2\n";
-        // std::cout << "Id size: " << id_text.size() << '\n';
-        // std::cout << "Lexed id: " << id_text << " at position " << position << '\n';
 
         position += id_text.length();
 
         if (auto keyword_kind = _token_spec.keywordKind(id_text))
         {
-            return addLexedToken(keyword_kind.value());
+            return addLexedToken(keyword_kind.value(), byte_offset);
         }
 
-        return addLexedToken(TokenKind::Id);
+        return addLexedToken(TokenKind::Id, byte_offset);
     }
 
     static auto dispatchNext(Lexer& lexer, std::string_view text, std::size_t position) -> void;
@@ -289,6 +285,18 @@ VIPER_DISPATCH_LEX_NON_TOKEN(lexVerticalWhitespace)
         }
     }
 
+    auto Lexer::addLexedToken(TokenKind kind, int32_t byte_offset) noexcept -> TokenIndex
+    {
+        auto id = _buffer.addToken(TokenInfo(kind, byte_offset));
+        return id;
+    }
+    
+    auto Lexer::addLexedTokenWithPayload(TokenKind kind, int32_t byte_offset, int32_t payload) noexcept -> TokenIndex
+    {
+        auto id = _buffer.addToken(TokenInfo(kind, byte_offset, payload));
+        return id;
+    }
+
     auto Lexer::lex() && noexcept -> TokenizedBuffer
     {
         std::string_view source_text = _source.getBuffer();
@@ -299,14 +307,6 @@ VIPER_DISPATCH_LEX_NON_TOKEN(lexVerticalWhitespace)
         _buffer.setHasErrors(_diagnostics_consumer->seen_error());
 
         return std::move(_buffer);
-    }
-
-    auto Lexer::addLexedToken(TokenKind kind) noexcept -> TokenIndex
-    {
-        // std::cout << "Adding token " << _buffer.size()+1 << '\n';
-        _buffer.addToken(TokenInfo(kind));
-        // std::cout << "Token added \n";
-        return _buffer.size()-1;
     }
 
     auto lex(source::SourceBuffer& source_buffer, std::weak_ptr<diagnostics::Consumer> consumer) -> TokenizedBuffer

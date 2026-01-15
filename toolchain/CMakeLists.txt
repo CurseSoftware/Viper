@@ -18,6 +18,7 @@ add_subdirectory(source)
 add_subdirectory(base)
 add_subdirectory(diagnostics)
 add_subdirectory(lex)
+add_subdirectory(parse)
 add_subdirectory(testing)
 
 message("Sources: ${TOOLCHAIN_SOURCES}")

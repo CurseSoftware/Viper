@@ -22,6 +22,13 @@ namespace viper::toolchain::driver
         _tokens = lex::lex(_source.value(), _diagnostics_consumer);
     }
 
+    auto CompilationUnit::parse() noexcept -> void
+    {
+        tokenize();
+
+        
+    }
+
     auto CompilationUnit::getSourceBuffer(std::string_view filename) const noexcept -> std::optional<source::SourceBuffer>
     {
         return source::SourceBuffer::fromFilePath(filename, _diagnostics_consumer);

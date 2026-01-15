@@ -37,12 +37,14 @@ namespace viper::toolchain::lex
             return format::format("Read {} tokens when expected {}", tokens.size(), expected.size());
         }
 
-        for (std::size_t i = 0; i < tokens.size(); i++)
+        std::size_t index = 0;
+        for (auto token : tokens)
         {
-            if (expected[i] != tokens[i].kind())
+            if (expected[index] != token.kind())
             {
-                return format::format("tokens[i] = {} when expected {}", getTokenKindString(tokens[i].kind()), getTokenKindString(expected[i]));
+                return format::format("tokens[{}] = {} when expected {}", index, getTokenKindString(token.kind()), getTokenKindString(expected[index]));
             }
+            index++;
         }
 
         return {};
@@ -86,12 +88,14 @@ namespace viper::toolchain::lex
             return format::format("Read {} tokens when expected {}", tokens.size(), expected.size());
         }
 
-        for (std::size_t i = 0; i < tokens.size(); i++)
+        std::size_t index { 0 };
+        for (auto token : tokens)
         {
-            if (expected[i] != tokens[i].kind())
+            if (expected[index] != token.kind())
             {
-                return format::format("tokens[{}] = {} when expected {}", i, getTokenKindString(tokens[i].kind()), getTokenKindString(expected[i]));
+                return format::format("tokens[{}] = {} when expected {}", index, getTokenKindString(token.kind()), getTokenKindString(expected[index]));
             }
+            index++;
         }
 
         return {};

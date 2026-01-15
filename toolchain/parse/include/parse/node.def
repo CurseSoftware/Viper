@@ -1,0 +1,10 @@
+#ifndef VIPER_PARSE_NODE
+#error "Must define the VIPER_PARSE_NODE x-macro"
+#define VIPER_PARSE_NODE(Name)
+#endif // VIPER_PARSE_NODE
+
+#ifndef VIPER_PARSE_NODE_
+#error "Must define the VIPER_PARSE_NODE x-macro"
+#define VIPER_PARSE_NODE(Name)
+#endif // VIPER_PARSE_NODE
+

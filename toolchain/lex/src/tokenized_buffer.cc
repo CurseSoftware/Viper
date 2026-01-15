@@ -6,9 +6,11 @@ namespace viper::toolchain::lex
 {
     auto TokenizedBuffer::addToken(TokenInfo info) noexcept -> TokenIndex
     {
-        _token_infos.push_back(info);
+        // _token_infos.push_back(info);
+        auto id = _token_infos.add(info);
+        return id;
         
-        return _token_infos.size()-1;
+        // return _token_infos.size()-1;
     }
 
     auto TokenizedBuffer::dumpTokens() const noexcept -> void

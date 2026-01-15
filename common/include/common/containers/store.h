@@ -66,11 +66,24 @@ namespace viper::containers
 
         // API
         public:
+            auto reserve(int32_t size)
+            {
+                _values.reserve(size);
+            }
+
             auto add(ValueType value) -> IdType
             {
                 IdType id = IdType(static_cast<int32_t>(_values.size()));
                 _values.push_back(value);
 
+                return id;
+            }
+
+            template <typename ...Args>
+            auto emplace(Args&& ...args)
+            {
+                IdType id = IdType(static_cast<int32_t>(_values.size()));
+                _values.emplace_back(args...);
                 return id;
             }
 

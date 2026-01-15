@@ -79,7 +79,7 @@ namespace viper::toolchain::lex
     auto Lexer::skipVerticalWhitespace(std::string_view text, std::size_t i) -> std::size_t
     {
         std::size_t new_position = i;
-        while (isVerticalWhitespace(text[new_position]))
+        while (new_position < text.size() && isVerticalWhitespace(text[new_position]))
         {
             new_position++;
         }
@@ -90,7 +90,7 @@ namespace viper::toolchain::lex
     auto Lexer::skipHorizontalWhitespace(std::string_view text, std::size_t i) -> std::size_t
     {
         std::size_t new_position = i;
-        while (isHorizontalWhitespace(text[new_position]))
+        while (new_position < text.size() && isHorizontalWhitespace(text[new_position]))
         {
             new_position++;
         }
@@ -100,16 +100,19 @@ namespace viper::toolchain::lex
 
     auto Lexer::lexHorizontalWhitespace(std::string_view text, std::size_t& position) noexcept -> void
     {
+        // std::cout << "Horizontal\n";
         position = skipHorizontalWhitespace(text, position);
     }
 
     auto Lexer::lexVerticalWhitespace(std::string_view text, std::size_t& position) noexcept -> void
     {
+        // std::cout << "Vertical\n";
         position = skipVerticalWhitespace(text, position);
     }
 
     auto Lexer::lexNumericLiteral(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
+        // std::cout << "Numeric\n";
         int32_t byte_offset { static_cast<int32_t>(position) };
         if (!isNumeric(text[position]))
         {
@@ -127,6 +130,7 @@ namespace viper::toolchain::lex
 
     auto Lexer::lexError(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
+        // std::cout << "Error\n";
         int32_t byte_offset { static_cast<int32_t>(position) };
         std::size_t i = position;
         do {
@@ -153,6 +157,7 @@ namespace viper::toolchain::lex
 
     auto Lexer::lexSymbol(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
+        // std::cout << "Symbol\n";
         int32_t byte_offset { static_cast<int32_t>(position) };
         // std::cout << "lexing symbol\n";
         for (const auto& symbol : _token_spec.symbols())
@@ -173,6 +178,7 @@ namespace viper::toolchain::lex
 
     auto Lexer::lexKeywordOrIdentifier(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
+        // std::cout << "Keyword\n";
         int32_t byte_offset { static_cast<int32_t>(position) };
         
         if (static_cast<unsigned char>(text[position]) > 0x7F)
@@ -291,14 +297,12 @@ VIPER_DISPATCH_LEX_NON_TOKEN(lexVerticalWhitespace)
 
     auto Lexer::addLexedToken(TokenKind kind, int32_t byte_offset) noexcept -> TokenIndex
     {
-        auto id = _buffer.addToken(TokenInfo(kind, byte_offset));
-        return id;
+        return _buffer.emplaceToken(kind, byte_offset);
     }
     
     auto Lexer::addLexedTokenWithPayload(TokenKind kind, int32_t byte_offset, int32_t payload) noexcept -> TokenIndex
     {
-        auto id = _buffer.addToken(TokenInfo(kind, byte_offset, payload));
-        return id;
+        return _buffer.emplaceToken(kind, byte_offset, payload);
     }
 
     auto Lexer::lex() && noexcept -> TokenizedBuffer

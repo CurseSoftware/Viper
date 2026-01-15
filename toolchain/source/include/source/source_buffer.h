@@ -38,6 +38,8 @@ namespace viper::toolchain::source
             auto getBuffer() const noexcept -> std::string_view { return _memory->getBuffer(); }
 
             auto filepath() const noexcept -> const std::string& { return _file_path; }
+
+            auto size() const noexcept -> std::size_t { return _memory->size(); }
             
         // Constructor
         private:

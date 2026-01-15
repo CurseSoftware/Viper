@@ -6,6 +6,7 @@
 #include "diagnostics/kinds.h"
 #include "diagnostics/no_location_emitter.h"
 #include <common/filesystem.h>
+#include <exception>
 #include <iostream>
 #include <utility>
 

@@ -29,7 +29,7 @@ namespace viper::toolchain::base
                 }
 
                 auto key = static_cast<int32_t>(_values.size());
-                _values.push_back(value);
+                _values.push_back(std::move(value));
                 _key_store.emplace(_values.back(), key);
                 return IdType(key);
             }

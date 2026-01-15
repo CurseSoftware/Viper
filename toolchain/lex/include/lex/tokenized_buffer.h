@@ -28,6 +28,15 @@ namespace viper::toolchain::lex
             // Add a new token into this buffer
             auto addToken(TokenInfo info) noexcept -> TokenIndex;
 
+            template <typename... Args>
+            auto emplaceToken(Args&& ...args) noexcept -> TokenIndex
+            {
+                return _token_infos.emplace(args...);
+            }
+
+            // Pre-allocate space for the buffer
+            auto reserve(int32_t size) noexcept -> void;
+
             // See whether this buffer contains errors
             auto has_errors() const noexcept -> bool { return _has_errors; }
 

@@ -101,7 +101,14 @@ namespace viper::toolchain::lex
                 , _token_spec{ token_spec }
                 , _source_emitter{ _diagnostics_consumer, source }
                 , _shared_values{ shared_values }
-            {}
+            {
+                // TODO: calculate a better method to find what to pre-allocate
+                int32_t tokens_per_line = 6;
+                float lines_per_byte = 0.07;
+                int32_t size = _source.size() * lines_per_byte * tokens_per_line;
+                // std::cout << format::format("Reserving {}.\n", size);
+                _buffer.reserve(size);
+            }
 
         // Methods
         public:

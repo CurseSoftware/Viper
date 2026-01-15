@@ -13,6 +13,11 @@ namespace viper::toolchain::lex
         // return _token_infos.size()-1;
     }
 
+    auto TokenizedBuffer::reserve(int32_t size) noexcept -> void 
+    {
+        _token_infos.reserve(size);
+    }
+    
     auto TokenizedBuffer::dumpTokens() const noexcept -> void
     {
         for (const auto info : _token_infos)

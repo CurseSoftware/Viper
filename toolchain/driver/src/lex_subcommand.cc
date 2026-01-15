@@ -45,6 +45,7 @@ namespace viper::toolchain::driver
         if (!tokens.has_errors())
         {
             compilation_unit.tokens().dumpTokens();
+            compilation_unit.shared_values().dump();
         }
     }
 

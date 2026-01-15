@@ -55,10 +55,12 @@ namespace viper::toolchain::base
             }
 
         // Iterator
-        private:
+        public:
             using StorageT = std::vector<ValueType>;
             using Iterator = StorageT::iterator;
             using ConstIterator = StorageT::const_iterator;
+
+            auto size() -> std::size_t { return _values.size(); }
 
             auto begin() -> Iterator { return _values.begin(); }
             auto end() -> Iterator { return _values.end(); }

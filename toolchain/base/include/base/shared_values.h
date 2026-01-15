@@ -3,6 +3,8 @@
 
 #include "base/canonical_values.h"
 #include "base/string_literal_store.h"
+#include "common/format.h"
+#include <iostream>
 
 namespace viper::toolchain::base
 {
@@ -29,6 +31,15 @@ namespace viper::toolchain::base
             
             auto string_literals() noexcept -> StringLiteralStore& { return _string_literals; }
             auto string_literals() const noexcept -> const StringLiteralStore& { return _string_literals; }
+
+            auto dump() const noexcept -> void
+            {
+                std::cout << "Identifiers: \n";
+                for (const auto& identifier : _identifiers)
+                {
+                    std::cout << format::format("\t{}\n", identifier);
+                }
+            }
 
         private:
             StringLiteralStore _string_literals;

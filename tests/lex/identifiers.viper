@@ -1,0 +1,4 @@
+define main() -> i32 {
+    let i: i32 = 0;
+    return i;
+}

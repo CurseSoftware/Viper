@@ -46,6 +46,7 @@ namespace viper::toolchain::driver
         // Getters
         public:
             [[nodiscard]] auto tokens() const noexcept -> const lex::TokenizedBuffer& { return _tokens.value(); }
+            [[nodiscard]] auto shared_values() const noexcept -> const base::SharedValues& { return _shared_values; }
 
         // Private methods
         private:
@@ -70,6 +71,7 @@ namespace viper::toolchain::driver
             // Tokens for this compilation unit
             std::optional<lex::TokenizedBuffer> _tokens { std::nullopt };
 
+            // Store for values that are shared across steps in the toolchain
             base::SharedValues _shared_values {};
 
             // TODO: add compiler options

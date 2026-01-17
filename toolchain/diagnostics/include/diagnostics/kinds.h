@@ -29,6 +29,9 @@ VIPER_DIAGNOSTIC_KIND(FileNotFound, "File not found: {}", std::string)
 //      LEXER DIAGNOSTICS      //
 // --------------------------- //
 VIPER_DIAGNOSTIC_KIND(InvalidCharacters, "Found invalid characters while parsing: {}", std::string)
+VIPER_DIAGNOSTIC_KIND(IntBeginsWithZero, "Integer literal begins with {}", char)
+VIPER_DIAGNOSTIC_KIND(InvalidNumericCharacter, "Invalid character found for numeric literal: 0", const char&)
+VIPER_DIAGNOSTIC_KIND(InvalidNumericSeparatorPosition, "Invalid position for separator in numeric literal", char)
 
 } // namespace viper::toolchain::diagnostics
 

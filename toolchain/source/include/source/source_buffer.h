@@ -44,7 +44,7 @@ namespace viper::toolchain::source
         // Constructor
         private:
             [[nodiscard]] explicit SourceBuffer(fs::FilePath file_path, std::unique_ptr<memory::MemoryBuffer> memory) noexcept 
-                : _file_path{ std::move(file_path) }
+                : _file_path{ file_path }
                 , _memory{ std::move(memory) }
             {}
 

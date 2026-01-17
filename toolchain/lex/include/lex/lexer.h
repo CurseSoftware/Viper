@@ -10,6 +10,7 @@
 #include "token_kind.h"
 #include "tokenized_buffer.h"
 #include "tokens.h"
+#include <iostream>
 #include <memory>
 #include <string_view>
 #include <utility>
@@ -47,10 +48,11 @@ namespace viper::toolchain::lex
                 }
 
                 std::string_view file_name = _source.filepath();
+                std::cout << "Filepath: " << _source.filepath() << '\n';
                 int32_t column_number { offset - line_begin_offset };
                 int32_t line_number { 0 };
                 int32_t length = 1;
-                std::string_view line = text.substr(line_begin_offset, line_end_offset - line_begin_offset);
+                std::string_view line = text.substr(line_begin_offset+1, line_end_offset-1 - line_begin_offset+1);
                 return diagnostics::ConvertedLocation {
                     .location = diagnostics::Location(
                         file_name,

@@ -23,6 +23,7 @@ namespace viper::fs
         {
             return {};
         }
+        file._path = path;
 
         return std::move(file);
     }

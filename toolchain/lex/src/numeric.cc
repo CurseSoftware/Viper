@@ -1,5 +1,8 @@
 #include "numeric.h"
 #include "characters.h"
+#include "diagnostics/diagnostic.h"
+#include "diagnostics/kinds.h"
+#include "lexer.h"
 #include <algorithm>
 #include <charconv>
 #include <iostream>
@@ -8,12 +11,17 @@
 
 namespace viper::toolchain::lex
 {
-    auto NumericLiteral::lex(std::string_view text, bool can_be_real) -> std::optional<NumericLiteral>
+    auto NumericLiteral::lex(std::string_view text, bool can_be_real, SourcePointerEmitter& emitter) -> std::optional<NumericLiteral>
     {
-        NumericLiteral literal {};
+        NumericLiteral literal(emitter);
         
         if (text.empty() || !isNumeric(text[0]))
         {
+            auto diag = diagnostics::make_diagnostic<diagnostics::InvalidNumericCharacterDiagnostic>(
+                diagnostics::Level::Error,
+                text[0]
+            );
+            emitter.emit(text.begin(), diag);
             return std::nullopt;
         }
 
@@ -47,8 +55,9 @@ namespace viper::toolchain::lex
         return literal;
     }
 
-    NumericLiteral::Parser::Parser(NumericLiteral& literal)
+    NumericLiteral::Parser::Parser(NumericLiteral& literal, SourcePointerEmitter& emitter)
         : _literal{ literal }
+        , _emitter{ emitter }
         , _base{ Base::Decimal }
     {
         _int_section = literal.text().substr(0, literal.decimal_offset());
@@ -76,6 +85,8 @@ namespace viper::toolchain::lex
     {
         if (_base == Base::Decimal && _int_section.length() > 1 && _int_section.starts_with('0'))
         {
+            auto diag = diagnostics::make_diagnostic<diagnostics::IntBeginsWithZeroDiagnostic>(diagnostics::Level::Error, '0');
+            _emitter.emit(_literal.text().begin()+1, diag);
             return false;
         }
         // TODO: perform diagnostic
@@ -121,7 +132,7 @@ namespace viper::toolchain::lex
 
     auto NumericLiteral::findValue() noexcept -> Value
     {
-        Parser parser(*this);
+        Parser parser(*this, _emitter);
 
         if (!parser.check_ok())
         {
@@ -194,7 +205,11 @@ namespace viper::toolchain::lex
             {
                 if (!allow_separators || i == 0 ||  text[i-1] == '_' || i + 1 == text.size())
                 {
-                    // TODO: emit a diagnostic
+                    auto diag = diagnostics::make_diagnostic<diagnostics::InvalidNumericSeparatorPositionDiagnostic>(
+                        diagnostics::Level::Error,
+                        '_'
+                    );
+                    _emitter.emit(text.begin()+i, diag);
                     return { .is_ok = false };
                 }
                 

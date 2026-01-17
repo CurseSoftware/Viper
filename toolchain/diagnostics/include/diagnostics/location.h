@@ -22,7 +22,7 @@ namespace viper::toolchain::diagnostics
                 , _length{ length }
             {}
 
-            auto file_name() const noexcept -> std::string_view { return _line; }
+            auto file_name() const noexcept -> std::string_view { return _file_name; }
             auto line() const noexcept -> std::string_view { return _line; }
             auto line_number() const noexcept -> int32_t { return _line_num; }
             auto column_number() const noexcept -> int32_t { return _col_num; }

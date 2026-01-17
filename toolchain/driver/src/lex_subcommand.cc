@@ -45,7 +45,7 @@ namespace viper::toolchain::driver
         auto tokens = compilation_unit.tokens();
         if (!tokens.has_errors())
         {
-            compilation_unit.tokens().dumpTokens();
+            // compilation_unit.tokens().dumpTokens();
             compilation_unit.shared_values().dump();
         }
 

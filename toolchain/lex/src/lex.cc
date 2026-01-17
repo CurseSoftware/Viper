@@ -130,7 +130,7 @@ namespace viper::toolchain::lex
         {
         }
         // std::cout << "Numeric literal: " << text.substr(position, i-position) << '\n';
-        auto numeric = NumericLiteral::lex(text.substr(position, i-position), true);
+        auto numeric = NumericLiteral::lex(text.substr(position, i-position), true, _source_emitter);
         position = i;
         if (!numeric)
         {

@@ -2,6 +2,7 @@
 #define VIPER_TOOLCHAIN_LEX_NUMERIC_H
 
 #include "diagnostics/emitter.h"
+#include "lexer.h"
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -31,7 +32,7 @@ namespace viper::toolchain::lex
 
             using Value = std::variant<IntegerValue, RealValue, Error>;
 
-            static auto lex(std::string_view text, bool can_be_real) -> std::optional<NumericLiteral>;
+            static auto lex(std::string_view text, bool can_be_real, SourcePointerEmitter& emitter) -> std::optional<NumericLiteral>;
 
             // Get the value for 
             [[nodiscard]] auto value() const noexcept -> Value;
@@ -44,6 +45,9 @@ namespace viper::toolchain::lex
             [[nodiscard]] auto findValue() noexcept -> Value;
         
         private:
+            explicit NumericLiteral(SourcePointerEmitter& emitter) noexcept
+                : _emitter{ emitter }
+            {}
 
             class [[nodiscard]] Parser
             {
@@ -53,8 +57,7 @@ namespace viper::toolchain::lex
                         bool is_ok;
                         bool has_separators;
                     };
-                    
-                    explicit Parser(NumericLiteral& literal);
+                    explicit Parser(NumericLiteral& literal, SourcePointerEmitter& emitter);
                     
                     auto check_ok() noexcept -> bool;
                     auto checkIntSection() noexcept -> bool;
@@ -78,6 +81,7 @@ namespace viper::toolchain::lex
                 private:
                     Base _base;
                     NumericLiteral& _literal;
+                    SourcePointerEmitter& _emitter;
                     std::string_view _int_section;
                     std::string_view _fraction_section;
                     bool _clean_mantissa { false };
@@ -115,6 +119,7 @@ namespace viper::toolchain::lex
             int16_t _decimal_offset;
             Base _base { Base::Decimal };
             bool _clean_mantissa { false };
+            SourcePointerEmitter& _emitter;
     };
 } // namespace viper::toolchain::lex
 

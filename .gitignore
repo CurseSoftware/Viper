@@ -2,6 +2,8 @@ build_debug
 build_release
 build*
 
+tests/large*
+
 .cache
 
 # This should be a symlink anyway

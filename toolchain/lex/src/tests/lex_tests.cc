@@ -221,12 +221,14 @@ namespace viper::toolchain::lex
             TokenKind::IntLiteral,
             TokenKind::RealLiteral,
             TokenKind::IntLiteral,
+            TokenKind::IntLiteral,
         };
         const std::vector<int64_t> expected_integers = {
             1,
             0,
             100,
-            1234
+            1234,
+            1000
         };
         const std::vector<base::Real> expected_reals = {
             { .mantissa = 1, .exponent = 0 },

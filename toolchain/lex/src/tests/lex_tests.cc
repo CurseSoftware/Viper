@@ -1,4 +1,5 @@
 #include "tests/lex_tests.h"
+#include "base/real.h"
 #include "base/shared_values.h"
 #include "common/format.h"
 #include "common/streams.h"
@@ -122,7 +123,7 @@ namespace viper::toolchain::lex
             TokenKind::Colon,
             TokenKind::Id,
             TokenKind::Equal,
-            TokenKind::NumericLiteral,
+            TokenKind::IntLiteral,
             TokenKind::SemiColon,
             TokenKind::Return,
             TokenKind::Id,
@@ -202,6 +203,141 @@ namespace viper::toolchain::lex
             if (!found)
             {
                 return format::format("Found unexpected identifier [{}]", id);
+            }
+        }
+
+        return {};
+    }
+   
+    auto lexNumbers() -> std::optional<std::string>
+    {
+        base::SharedValues mock_shared_values {};
+        const std::string path { "tests/lex/numbers.viper" };
+        const std::vector<lex::TokenKind> expected = {
+            TokenKind::IntLiteral,
+            TokenKind::RealLiteral,
+            TokenKind::IntLiteral,
+            TokenKind::RealLiteral,
+            TokenKind::IntLiteral,
+            TokenKind::RealLiteral,
+            TokenKind::IntLiteral,
+        };
+        const std::vector<int64_t> expected_integers = {
+            1,
+            0,
+            100,
+            1234
+        };
+        const std::vector<base::Real> expected_reals = {
+            { .mantissa = 1, .exponent = 0 },
+            { .mantissa = 0, .exponent = 0 },
+            { .mantissa = 1, .exponent = 234 },
+        };
+        
+        auto null_out = NullOStream();
+        auto mock_consumer = std::make_shared<diagnostics::StreamConsumer>(null_out);
+        // auto unit = driver::CompilationUnit(path, mock_consumer);
+        
+        // unit.tokenize();
+        auto source = source::SourceBuffer::fromFilePath(path, mock_consumer);
+        if (!source)
+        {
+            return format::format("Source buffer failed to create from file path \"{}\"", path);
+        }
+        
+        auto tokens = lex(source.value(), mock_consumer, mock_shared_values).tokens();
+
+        if (tokens.size() != expected.size())
+        {
+            return format::format("Read {} tokens when expected {}", tokens.size(), expected.size());
+        }
+
+        std::size_t index { 0 };
+        for (auto token : tokens)
+        {
+            if (expected[index] != token.kind())
+            {
+                return format::format("tokens[{}] = {} when expected {}", index, getTokenKindString(token.kind()), getTokenKindString(expected[index]));
+            }
+            index++;
+        }
+
+        if (mock_shared_values.integers().size() != expected_integers.size())
+        {
+            return format::format("Read {} integers when expected {}", mock_shared_values.integers().size(), expected_integers.size());
+        }
+
+        index = 0;
+        for (const auto& expected : expected_integers)
+        {
+            bool found { false };
+            for (const auto& integer : mock_shared_values.integers())
+            {
+                if (integer == expected)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                return format::format("Failed to find expected integer [{}]", expected);
+            }
+        }
+        
+        for (const auto& integer : mock_shared_values.integers())
+        {
+            bool found { false };
+            for (const auto& expected : expected_integers)
+            {
+                if (integer == expected)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                return format::format("Found unexpected identifier [{}]", integer);
+            }
+        }
+
+        index = 0;
+        for (const auto& expected : expected_reals)
+        {
+            bool found { false };
+            for (const auto& real : mock_shared_values.reals())
+            {
+                if (real.mantissa == expected.mantissa && real.exponent == expected.exponent)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                return format::format("Failed to find expected real [{} : {}]", expected.mantissa, expected.exponent);
+            }
+        }
+        
+        for (const auto& real : mock_shared_values.reals())
+        {
+            bool found { false };
+            for (const auto& expected : expected_reals)
+            {
+                if (real.mantissa == expected.mantissa && real.exponent == expected.exponent)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                return format::format("Found unexpected real [{} : {}]", real.mantissa, real.exponent);
             }
         }
 

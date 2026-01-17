@@ -27,6 +27,11 @@ namespace viper::utility
     {
         return hash(s);
     }
+
+    /* Utility for visitor pattern with std::variant */
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    template <typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+    template <typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 } // namespace viper::utility
 
 #endif // VIPER_COMMON_UTILITY_H

@@ -15,6 +15,18 @@ namespace viper::toolchain::base
         using Id::Id;
         static const IdentifierId None;
     };
+
+    struct IntId : public containers::Id<IntId>
+    {
+        using Id::Id;
+        static const IntId None;
+    };
+
+    struct RealId : public containers::Id<IntId>
+    {
+        using Id::Id;
+        static const RealId None;
+    };
 } // namespace viper::toolchain::base
 
 #endif // VIPER_TOOLCHAIN_BASE_STRING_LITERAL_STORE_H

@@ -10,6 +10,8 @@ namespace viper::toolchain::lex
     auto lexSymbolTest() -> std::optional<std::string>;
 
     auto lexIdentifiers() -> std::optional<std::string>;
+    
+    auto lexNumbers() -> std::optional<std::string>;
 } // namespace viper::toolchain::lex
 
 #endif // VIPER_TOOLCHAIN_LEX_TESTS_LEX_TESTS_H

@@ -1,10 +1,12 @@
 #include "lex.h"
 #include "base/shared_values.h"
 #include "characters.h"
+#include "common/utility.h"
 #include "diagnostics/consumer.h"
 #include "diagnostics/diagnostic.h"
 #include "diagnostics/kinds.h"
 #include "lexer.h"
+#include "numeric.h"
 #include "source/source_buffer.h"
 #include "token_kind.h"
 #include "tokenized_buffer.h"
@@ -14,6 +16,7 @@
 #include <cstring>
 #include <exception>
 #include <string_view>
+#include <variant>
 
 namespace viper::toolchain::lex
 {
@@ -112,20 +115,47 @@ namespace viper::toolchain::lex
 
     auto Lexer::lexNumericLiteral(std::string_view text, std::size_t& position) noexcept -> Lexer::Result
     {
-        // std::cout << "Numeric\n";
         int32_t byte_offset { static_cast<int32_t>(position) };
+        
+        // Check that the first position is a number.
+        // We do not allow for number literals to begin with
+        // '.'
         if (!isNumeric(text[position]))
         {
-            return Result::invalid();
+            return lexError(text, position);
         }
 
         std::size_t i { position };
-        for (; isNumeric(text[i]) || text[i] == '.'; i++)
+        for (; isAlphaNumeric(text[i]) || text[i] == '.' || text[i] == '_'; i++)
         {
         }
         // std::cout << "Numeric literal: " << text.substr(position, i-position) << '\n';
+        auto numeric = NumericLiteral::lex(text.substr(position, i-position), true);
         position = i;
-        return addLexedToken(TokenKind::NumericLiteral, byte_offset);
+        if (!numeric)
+        {
+            return lexError(text, position);
+        }
+
+        auto value = numeric->findValue();
+        return std::visit(
+            utility::overloaded {
+                [&](NumericLiteral::Error&) { 
+                    return addLexedTokenWithPayload(TokenKind::Error, byte_offset, position-byte_offset); 
+                },
+                [&](NumericLiteral::IntegerValue& int_value) {
+                    auto int_id = _shared_values.integers().add(int_value.value);
+                    return addLexedTokenWithPayload(TokenKind::IntLiteral, byte_offset, int_id.index); 
+                },
+                [&](NumericLiteral::RealValue& real_value) {
+                    auto real_id = _shared_values.reals().emplace(real_value.mantissa, real_value.exponent);
+                    return addLexedTokenWithPayload(TokenKind::RealLiteral, byte_offset, real_id.index); 
+                },
+            },
+            value
+        );
+        
+        // return addLexedToken(TokenKind::NumericLiteral, byte_offset);
     }
 
     auto Lexer::lexError(std::string_view text, std::size_t& position) noexcept -> Lexer::Result

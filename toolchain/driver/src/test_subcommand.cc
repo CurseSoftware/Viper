@@ -45,6 +45,7 @@ namespace viper::toolchain::driver
         _manager.registerTest("Lex Keywords", lex::lexKeywordTest);
         _manager.registerTest("Lex symbols", lex::lexSymbolTest);
         _manager.registerTest("Lex identifiers", lex::lexIdentifiers);
+        _manager.registerTest("Lex numbers", lex::lexNumbers);
     }
 
 } // namespace viper::toolchain::driver

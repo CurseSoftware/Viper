@@ -3,7 +3,7 @@
 
 #include "common/format.h"
 #include "diagnostics/location.h"
-#include <__format/format_functions.h>
+//#include <__format/format_functions.h>
 #include <concepts>
 #include <format>
 #include <iostream>

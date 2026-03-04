@@ -7,6 +7,8 @@
 #include <cstring>
 #include <optional>
 #include <span>
+#include <vector>
+#include <string_view>
 
 namespace viper::memory
 {
@@ -14,7 +16,7 @@ namespace viper::memory
     {
         // Info
         public:
-            using StorageType = std::uint8_t;
+            using StorageType = char8_t;
             using SizeType = std::size_t;
 
             static_assert(sizeof(StorageType) == 1, "The binary storage type for a memory buffer must be 1 byte");

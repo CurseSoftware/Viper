@@ -36,7 +36,12 @@ namespace viper::fs
 
     using FileId = std::uint32_t;
     using FilePermissions = std::int32_t;
-    using FilePath = std::filesystem::path;
+    using FilePath =
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+        std::string;
+#else
+        std::filesystem::path;
+#endif
     using FileName = std::string;
 
     enum FileOpenResult
@@ -62,7 +67,7 @@ namespace viper::fs
             [[nodiscard]] static auto fromPath(const FilePath&) noexcept -> std::optional<File>;
 
             // Read the contents of this file to a buffer of `std::byte`
-            [[nodiscard]] auto readContentToBytes() noexcept -> std::vector<std::uint8_t>;
+            [[nodiscard]] auto readContentToBytes() noexcept -> std::vector<char8_t>;
 
             // Read the contents of this file to a buffer of `std::string`
             [[nodiscard]] auto readContentToString() noexcept -> std::string;

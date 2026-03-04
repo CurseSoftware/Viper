@@ -21,7 +21,7 @@ namespace viper::toolchain::lex
                 diagnostics::Level::Error,
                 text[0]
             );
-            emitter.emit(text.begin(), diag);
+            emitter.emit(text.data(), diag);
             return std::nullopt;
         }
 
@@ -86,7 +86,7 @@ namespace viper::toolchain::lex
         if (_base == Base::Decimal && _int_section.length() > 1 && _int_section.starts_with('0'))
         {
             auto diag = diagnostics::make_diagnostic<diagnostics::IntBeginsWithZeroDiagnostic>(diagnostics::Level::Error, '0');
-            _emitter.emit(_literal.text().begin()+1, diag);
+            _emitter.emit(_literal.text().data()+1, diag);
             return false;
         }
         // TODO: perform diagnostic
@@ -107,11 +107,11 @@ namespace viper::toolchain::lex
                 }
             );
 
-            auto [ptr, ec] = std::from_chars(cleaned.begin(), cleaned.end(), value);
+            auto [ptr, ec] = std::from_chars(cleaned.data(), cleaned.data() + cleaned.size(), value);
             return value;
         }
             
-        auto [ptr, ec] = std::from_chars(text.begin(), text.end(), value);
+        auto [ptr, ec] = std::from_chars(text.data(), text.data() + text.size(), value);
         return value;
     }
 
@@ -209,7 +209,7 @@ namespace viper::toolchain::lex
                         diagnostics::Level::Error,
                         '_'
                     );
-                    _emitter.emit(text.begin()+i, diag);
+                    _emitter.emit(text.data()+i, diag);
                     return { .is_ok = false };
                 }
                 

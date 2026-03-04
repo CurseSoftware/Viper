@@ -50,7 +50,7 @@ namespace viper::toolchain::driver
 
         // Private methods
         private:
-            auto getSourceBuffer(std::string_view filename) const noexcept -> std::optional<source::SourceBuffer>;
+            auto getSourceBuffer(const std::string& filename) const noexcept -> std::optional<source::SourceBuffer>;
         
         // Member fields
         private:

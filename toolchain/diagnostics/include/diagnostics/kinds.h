@@ -1,7 +1,7 @@
 #ifndef VIPER_TOOLCHAIN_DIAGNOSTICS_KINDS_H
 #define VIPER_TOOLCHAIN_DIAGNOSTICS_KINDS_H
 #include "diagnostic.h"
-#include <__format/format_functions.h>
+//#include <__format/format_functions.h>
 #include <string>
 
 namespace viper::toolchain::diagnostics

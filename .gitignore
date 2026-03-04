@@ -2,6 +2,10 @@ build_debug
 build_release
 build*
 
+out*
+.vs
+.vs/*
+
 tests/large*
 
 .cache

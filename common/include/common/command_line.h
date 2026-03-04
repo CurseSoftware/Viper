@@ -12,6 +12,7 @@
 #include <functional>
 #include <vector>
 #include <queue>
+#include <optional>
 
 namespace viper::cli
 {
@@ -19,6 +20,11 @@ namespace viper::cli
     class Command;
 
     using CommandReceivedCallback = std::function<void()>;
+
+    struct CommandParseResult
+    {
+        std::string parsed_command_name{};
+    };
 
     class ArgumentBase
     {
@@ -63,7 +69,7 @@ namespace viper::cli
             [[nodiscard]] auto getUsageString() const noexcept -> std::string;
             
             // Parse the commands
-            [[nodiscard]] auto parseCommands(int argc, char** argv) -> struct CommandParseResult;
+            [[nodiscard]] auto parseCommands(int argc, char** argv) -> CommandParseResult;
 
             // Run the command that was received from the command line
             auto runReceivedCommand() const noexcept -> void;
@@ -434,10 +440,6 @@ namespace viper::cli
             bool _been_parsed { false };
     };
 
-    struct CommandParseResult
-    {
-        std::string parsed_command_name {};
-    };
 } // namespace viper::common::cli
 
 #endif // VIPER_COMMON_COMMAND_LINE_H

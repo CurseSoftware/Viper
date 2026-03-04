@@ -54,7 +54,7 @@ namespace viper
     auto bufferVecAllocateTestLarge() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100000000;
-        std::vector<unsigned char> data(ExpectedAllocationSize);
+        std::vector<char8_t> data(ExpectedAllocationSize);
 
         auto buffer = memory::MemoryBuffer::from(std::move(data));
 
@@ -74,7 +74,7 @@ namespace viper
     auto bufferVecAllocateTest() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100;
-        std::vector<unsigned char> data(ExpectedAllocationSize);
+        std::vector<char8_t> data(ExpectedAllocationSize);
 
         auto buffer = memory::MemoryBuffer::from(std::move(data));
 
@@ -94,7 +94,7 @@ namespace viper
     auto bufferSpanTest() -> std::optional<std::string>
     {
         constexpr std::size_t ExpectedAllocationSize = 100;
-        std::vector<unsigned char> data(ExpectedAllocationSize);
+        std::vector<char8_t> data(ExpectedAllocationSize);
 
         auto buffer = memory::MemoryBuffer::from(std::move(data));
 
@@ -103,7 +103,7 @@ namespace viper
             return "Buffer was not created";
         }
 
-        std::span<unsigned char> span = *buffer.value();
+        std::span<char8_t> span = *buffer.value();
 
         if (span.size() != ExpectedAllocationSize)
         {

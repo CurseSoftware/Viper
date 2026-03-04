@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <optional>
+#include <string>
 namespace viper::toolchain::testing
 {
     using TestFunction = std::function<auto()->std::optional<std::string>>;

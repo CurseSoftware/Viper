@@ -31,7 +31,7 @@ namespace viper::toolchain::lex
             auto convertLocation(const char* location) const noexcept -> diagnostics::ConvertedLocation override
             {
                 auto text = _source.getBuffer();
-                int32_t offset { static_cast<int32_t>(location - text.begin()) };
+                int32_t offset { static_cast<int32_t>(location - text.data()) };
                
                 // Find the beginning of the line for this location
                 int32_t line_begin_offset { offset };

@@ -178,7 +178,7 @@ namespace viper::toolchain::lex
 
 
         auto diag = diagnostics::make_diagnostic<diagnostics::InvalidCharactersDiagnostic>(diagnostics::Level::Error, std::string(error_text));
-        _source_emitter.emit(error_text.begin(), diag);
+        _source_emitter.emit(error_text.data(), diag);
 
         position += error_text.size();
 

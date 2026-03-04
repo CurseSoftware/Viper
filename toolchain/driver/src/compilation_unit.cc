@@ -29,7 +29,7 @@ namespace viper::toolchain::driver
         
     }
 
-    auto CompilationUnit::getSourceBuffer(std::string_view filename) const noexcept -> std::optional<source::SourceBuffer>
+    auto CompilationUnit::getSourceBuffer(const std::string& filename) const noexcept -> std::optional<source::SourceBuffer>
     {
         return source::SourceBuffer::fromFilePath(filename, _diagnostics_consumer);
     }

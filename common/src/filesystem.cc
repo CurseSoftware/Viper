@@ -70,12 +70,16 @@ namespace viper::fs
         return buffer;
     }
 
-    auto File::readContentToBytes() noexcept -> std::vector<std::uint8_t>
+    auto File::readContentToBytes() noexcept -> std::vector<char8_t>
     {
         // TODO: make sure that this is correct
-        return std::vector<std::uint8_t>(
+        return std::vector<char8_t>(
             std::istreambuf_iterator<char>(_file_stream),
             std::istreambuf_iterator<char>()
         );
+        //return std::vector<std::uint8_t>(
+        //    std::istreambuf_iterator<char>(_file_stream),
+        //    std::istreambuf_iterator<char>()
+        //);
     }
 } // namespace viper::fs

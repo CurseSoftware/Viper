@@ -8,3 +8,9 @@
 #define VIPER_PARSE_NODE(Name)
 #endif // VIPER_PARSE_NODE
 
+VIPER_PARSE_NODEE(File)
+
+VIPER_PARSE_NODE(FunctionIntroducer)
+VIPER_PARSE_NODE(FunctionDefinitionStart)
+VIPER_PARSE_NODE(FunctionDefinition)
+VIPER_PARSE_NODE(FunctionDecl)

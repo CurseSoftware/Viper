@@ -16,6 +16,10 @@ namespace viper::toolchain::lex
     class [[nodiscard]] TokenizedBuffer
     {
         public:
+            using Iterator = containers::IndexIterator<TokenIndex>;
+
+        // API
+        public:
             // Print all the tokens
             auto dumpTokens() const noexcept -> void;
 
@@ -45,9 +49,9 @@ namespace viper::toolchain::lex
 
         private:
             containers::Store<TokenIndex, TokenInfo> _token_infos;
-            // std::vector<TokenInfo> _token_infos;
             bool _has_errors { false };
     };
+
 } // namespace viper::toolchain::lex
 
 #endif // VIPER_TOOLCHAIN_LEX_TOKENIZED_BUFFER_H

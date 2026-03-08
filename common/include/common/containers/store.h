@@ -53,6 +53,52 @@ namespace viper::containers
             return lhs.index <=> rhs.index;
         }
     };
+    
+    template <typename IdType>
+    class IndexIterator
+    {
+        public:
+            IndexIterator() = delete;
+            explicit IndexIterator(IdType id) noexcept : _id{ id } {}
+
+            friend auto operator==(const IndexIterator lhs, const IndexIterator& rhs) noexcept -> bool
+            {
+                return lhs._id == rhs._id;
+            }
+
+            friend auto operator<=>(const IndexIterator lhs, const IndexIterator& rhs) noexcept -> std::strong_ordering
+            {
+                return lhs._id <=> rhs._id;
+            }
+
+            auto operator*() const noexcept -> const IdType& { return _id; }
+
+            friend auto operator-(const IndexIterator& lhs, const IndexIterator& rhs) noexcept -> int
+            {
+                return lhs._id.index - rhs._id.index;
+            }
+
+            auto operator+=(int n) noexcept -> IndexIterator&
+            {
+                _id.index += n;
+                return *this;
+            }
+
+            auto operator-=(int n) noexcept -> IndexIterator&
+            {
+                _id.index -= n;
+                return *this;
+            }
+
+            auto operator++() noexcept -> IndexIterator&
+            {
+                _id.index++;
+                return *this;
+            }
+
+        private:
+            IdType _id;
+    };
 
     template<typename IdType, typename ValueType>
     class [[nodiscard]] Store
@@ -89,7 +135,7 @@ namespace viper::containers
 
             auto get(IdType id) -> std::optional<ValueRef>
             {
-                [[likely]] if (id.index < _values.size())
+                if (id.index < _values.size()) [[likely]]
                 {
                     return _values[id.index];
                 }
@@ -99,7 +145,7 @@ namespace viper::containers
 
             auto get(IdType id) const -> std::optional<ConstRef>
             {
-                [[likely]] if (id.index < _values.size())
+                if (id.index < _values.size()) [[likely]]
                 {
                     return _values[id.index];
                 }
@@ -109,19 +155,45 @@ namespace viper::containers
 
             auto size() const noexcept -> std::size_t { return _values.size(); }
 
+        public:
+
         // Iterator
         public:
             using StorageT = std::vector<ValueType>;
             using Iterator = StorageT::iterator;
             using ConstIterator = StorageT::const_iterator;
+            
+            class ValueRange
+            {
+                public:
+                    explicit ValueRange(const Store& store) noexcept
+                        : _store{ store }
+                    {}
+                    // auto begin() -> Iterator { return _store._values.begin(); }
+                    // auto end() -> Iterator { return _store._values.end(); }
 
-            auto begin() -> Iterator { return _values.begin(); }
-            auto end() -> Iterator { return _values.end(); }
+                    auto begin() const -> ConstIterator { return _store._values.begin(); }
+                    auto end() const -> ConstIterator { return _store._values.end(); }
+                    auto cbegin() const -> ConstIterator { return _store._values.cbegin(); }
+                    auto cend() const -> ConstIterator { return _store._values.cend(); }
 
-            auto begin() const -> ConstIterator { return _values.begin(); }
-            auto end() const -> ConstIterator { return _values.end(); }
-            auto cbegin() const -> ConstIterator { return _values.cbegin(); }
-            auto cend() const -> ConstIterator { return _values.cend(); }
+                private:
+                    const Store& _store;
+            };
+
+            auto range() const noexcept -> ValueRange
+            {
+                return ValueRange(*this);
+            }
+
+            auto begin() -> IndexIterator<IdType> { return IndexIterator(IdType(0)); }
+            auto end() -> IndexIterator<IdType> { return IndexIterator(IdType(_values.size() - 1)); }
+
+            auto begin() const -> IndexIterator<IdType> { return IndexIterator(IdType(0)); }
+            auto end() const -> IndexIterator<IdType> { return IndexIterator(IdType(_values.size() - 1)); }
+
+        // Iterator over the indices
+        public:
         
         private:
             StorageT _values {};

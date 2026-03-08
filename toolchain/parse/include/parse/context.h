@@ -1,37 +1,58 @@
 #ifndef VIPER_PARSE_CONTEXT_H
 #define VIPER_PARSE_CONTEXT_H
 
+#include "lex/tokenized_buffer.h"
+#include "state.h"
+#include "tree.h"
 #include <vector>
 
 namespace viper::toolchain::parse
 {
-	struct ContextNode
-	{
-	};
-
-	class Context
+	class ParseContext
 	{
 		// Special members
 		public:
-			[[nodiscard]] explicit Context() noexcept
-			{
-			}
+			[[nodiscard]] explicit ParseContext(
+                lex::TokenizedBuffer& tokens
+            ) noexcept 
+                : _tokens{ tokens }
+                , _tree{ Tree{ tokens } }
+            {
+
+            }
 
 		// API
 		public:
-			auto openNode(ContextNode node) -> void
-			{
-				_open_node_stack.push_back(std::move(node));
-			}
+            // Push the new state for the kind of node that we are parsing
+            auto pushState(ParseState state) noexcept -> void
+            {
+                _state_stack.push_back(state);
+            }
 
-			auto closeNode() -> ContextNode
-			{
-				return std::move(_open_node_stack.pop_back());
-			}
+            // Pops the state from the stack and returns it.
+            // This is mainly used for setting when the tree 
+            // boundaries are for nodes.
+            [[nodiscard]] auto popState() noexcept -> ParseState
+            {
+                auto state = _state_stack.back();
+                _state_stack.pop_back();
+                return state;
+            }
+
+            [[nodiscard]] auto parse() noexcept -> Tree;
+
+        // Parse functions
+        public:
+            auto parseFile() noexcept -> void;
 
 		private:
-			// A stack of currently open nodes
-			std::vector<ContextNode> _open_node_stack{};
+            // The stack of `ParseState` nodes to track what we are currently parsing.
+            // This is useful for constructing the tree in pre-order.
+            std::vector<ParseState> _state_stack {};
+
+            const lex::TokenizedBuffer& _tokens;
+
+            Tree _tree;
 	};
 } // namespace viper::toolchain::parse
 

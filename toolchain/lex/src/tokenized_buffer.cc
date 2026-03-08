@@ -1,5 +1,6 @@
 #include "tokenized_buffer.h"
 #include "token_kind.h"
+#include <exception>
 #include <iostream>
 
 namespace viper::toolchain::lex
@@ -20,7 +21,7 @@ namespace viper::toolchain::lex
     
     auto TokenizedBuffer::dumpTokens() const noexcept -> void
     {
-        for (const auto info : _token_infos)
+        for (const auto info : _token_infos.range())
         {
             std::cout << "Token: " << getTokenKindString(info.kind()) << '\n';
         }

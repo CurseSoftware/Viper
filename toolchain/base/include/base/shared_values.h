@@ -51,7 +51,7 @@ namespace viper::toolchain::base
                 }
 
                 std::cout << "Reals: \n";
-                for (const auto& real : _reals)
+                for (const auto& real : _reals.range())
                 {
                     std::cout << format::format("\tMantissa: {}. Exponent: {}\n", real.mantissa, real.exponent);
                 }

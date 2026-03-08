@@ -28,14 +28,14 @@ namespace viper::toolchain::parse
 
             /* Movable */
             Tree(Tree&&) noexcept = default;
-            auto operator=(Tree&&) noexcept -> Tree& = default;
+            auto operator=(Tree&&) noexcept -> Tree& = delete; // this is implicitly deleted from reference to lex::TokenizedBuffer
 
         // API
         public:
             template <typename ... Args>
             auto emplaceNode(Args&&... args) -> void
             {
-                _parse_nodes.emplace(args);
+                _parse_nodes.emplace(args...);
             }
 
 			// Returns `true` if the tree has any errors. 

@@ -42,7 +42,7 @@ namespace viper::toolchain::lex
         }
 
         std::size_t index = 0;
-        for (auto token : tokens)
+        for (auto token : tokens.range())
         {
             if (expected[index] != token.kind())
             {
@@ -94,7 +94,7 @@ namespace viper::toolchain::lex
         }
 
         std::size_t index { 0 };
-        for (auto token : tokens)
+        for (auto token : tokens.range())
         {
             if (expected[index] != token.kind())
             {
@@ -155,7 +155,7 @@ namespace viper::toolchain::lex
         }
 
         std::size_t index { 0 };
-        for (auto token : tokens)
+        for (auto token : tokens.range())
         {
             if (expected[index] != token.kind())
             {
@@ -255,7 +255,7 @@ namespace viper::toolchain::lex
         }
 
         std::size_t index { 0 };
-        for (auto token : tokens)
+        for (auto token : tokens.range())
         {
             if (expected[index] != token.kind())
             {
@@ -310,7 +310,7 @@ namespace viper::toolchain::lex
         for (const auto& expected : expected_reals)
         {
             bool found { false };
-            for (const auto& real : mock_shared_values.reals())
+            for (const auto& real : mock_shared_values.reals().range())
             {
                 if (real.mantissa == expected.mantissa && real.exponent == expected.exponent)
                 {
@@ -325,7 +325,7 @@ namespace viper::toolchain::lex
             }
         }
         
-        for (const auto& real : mock_shared_values.reals())
+        for (const auto& real : mock_shared_values.reals().range())
         {
             bool found { false };
             for (const auto& expected : expected_reals)

@@ -6,6 +6,7 @@
 #include <compare>
 #include <concepts>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string_view>
 #include <type_traits>
@@ -90,10 +91,12 @@ namespace viper::containers
                 return *this;
             }
 
-            auto operator++() noexcept -> IndexIterator&
+            auto operator++(int) noexcept -> IndexIterator
             {
-                _id.index++;
-                return *this;
+                auto temp = *this;
+                _id.index += 1;
+
+                return temp;
             }
 
         private:
@@ -107,8 +110,13 @@ namespace viper::containers
             explicit Store() noexcept = default;
 
             using Value = std::remove_cvref_t<ValueType>;
-            using ValueRef = std::conditional_t<std::same_as<std::string_view, ValueType>, std::string_view, Value&>;
-            using ConstRef = std::conditional_t<std::same_as<std::string_view, ValueType>, std::string_view, const Value&>;
+            using ValueRef = 
+                std::reference_wrapper<
+                    std::conditional_t<std::same_as<std::string_view, ValueType>, std::string_view, Value>
+                >;
+            using ConstRef = std::reference_wrapper<
+                std::conditional_t<std::same_as<std::string_view, ValueType>, std::string_view, const Value>
+            >;
 
         // API
         public:
@@ -134,6 +142,7 @@ namespace viper::containers
             }
 
             auto get(IdType id) -> std::optional<ValueRef>
+            // auto get(IdType id) -> std::optional<ValueRef>
             {
                 if (id.index < _values.size()) [[likely]]
                 {
@@ -169,8 +178,6 @@ namespace viper::containers
                     explicit ValueRange(const Store& store) noexcept
                         : _store{ store }
                     {}
-                    // auto begin() -> Iterator { return _store._values.begin(); }
-                    // auto end() -> Iterator { return _store._values.end(); }
 
                     auto begin() const -> ConstIterator { return _store._values.begin(); }
                     auto end() const -> ConstIterator { return _store._values.end(); }
@@ -180,10 +187,30 @@ namespace viper::containers
                 private:
                     const Store& _store;
             };
+            
+            class IndexRange
+            {
+                public:
+                    explicit IndexRange(const Store& store) noexcept
+                        : _store{ store }
+                    {}
 
-            auto range() const noexcept -> ValueRange
+                    auto begin() -> IndexIterator<IdType> { return IndexIterator( IdType(0) ); }
+                    auto end() -> IndexIterator<IdType> { return IndexIterator( _store.size() - 1 ); }
+
+                private:
+                    const Store& _store;
+            };
+
+            // Returns a range over the values stored
+            auto values() const noexcept -> ValueRange
             {
                 return ValueRange(*this);
+            }
+
+            auto indices() const noexcept -> IndexRange
+            {
+                return IndexRange(*this);
             }
 
             auto begin() -> IndexIterator<IdType> { return IndexIterator(IdType(0)); }

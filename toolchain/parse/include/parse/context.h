@@ -17,9 +17,8 @@ namespace viper::toolchain::parse
             ) noexcept 
                 : _tokens{ tokens }
                 , _tree{ Tree{ tokens } }
-            {
-
-            }
+                , _position{ tokens.tokens().indices().begin() }
+            {}
 
 		// API
 		public:
@@ -45,12 +44,22 @@ namespace viper::toolchain::parse
         public:
             auto parseFile() noexcept -> void;
 
+            auto consumeChecked(lex::TokenKind kind) noexcept -> lex::TokenIndex;
+        
+            auto consume() noexcept -> lex::TokenIndex;
+
+            auto currentPositionKind() const noexcept -> lex::TokenKind;
+
+            [[nodiscard]] auto currentPositionIs(lex::TokenKind kind) const noexcept -> bool;
+
 		private:
             // The stack of `ParseState` nodes to track what we are currently parsing.
             // This is useful for constructing the tree in pre-order.
             std::vector<ParseState> _state_stack {};
 
             const lex::TokenizedBuffer& _tokens;
+
+            lex::TokenizedBuffer::Iterator _position;
 
             Tree _tree;
 	};
